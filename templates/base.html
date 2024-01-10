@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- General Settings -->
+        <meta charset="utf-8">
+        <meta http-equiv="content-language" content="en-us">
+        <base href="{global.baseUrl}" />
+    
+        <!-- Meta Tags -->
+        <title>{global.appName}</title>
+        <meta name="description" content="{global.description}">
+    
+        <!-- Static Assets -->
+        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="module" charset="utf-8" src="public/js/app.js"></script>
+        <link rel="stylesheet" type="text/css" href="public/styles/app.css" />
+        <link type="image/x-icon" rel="icon" href="public/images/favicon.ico" />
+    </head>
+
+    <body>
+        <nav>
+            <img src="public/images/logo.svg" alt="logo" class="logo" />
+            <ul id="userInfo" class="info">
+                <!-- <li><span class="name" title="Words Per Minute">WPM</span>: <span class="value">0</span></li>
+                <li><span class="name" title="Number of games you've played">Games</span>: <span class="value">0</span></li>
+                <li>
+                    <span class="name" title="Words Per Minute">
+                        <img src="public/images/profile.svg" alt="profile" />
+                    </span>
+                    <span class="value">Your name</span></li> -->
+            </ul>
+        </nav>
+
+        <div class="loaderRoot" id="loader">
+            <div class="loader">
+                <lottie-player src="public/loader.json" background="transparent" speed="1" loop
+                    autoplay></lottie-player>
+            </div>
+        </div>
+
+        <div id="main">
+            <!-- <div id="home">
+                <div class="option">
+                    <img src="public/images/race.svg" alt="race-button" />
+                    Race
+                </div>
+                <div class="option">
+                    <img src="public/images/track.svg" alt="race-button" />
+                    Practise
+                </div>
+                <div class="option">
+                    <img src="public/images/group.svg" alt="race-button" />
+                    Create room
+                </div>
+            </div> -->
+        </div>
+        
+        
+    </body>
+</html>

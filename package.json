@@ -1,0 +1,35 @@
+{
+  "name": "satg",
+  "version": "1.0.0",
+  "description": "Super Awesome Typing Game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf build && tsc",
+    "dev": "nodemon build/index.js",
+    "start": "node build/index.js",
+    "prepare": "npx ts-patch install -s",
+    "debug:server": "rm -rf build && tsc && NODE_DEBUG=server nodemon ./build/index.js"
+  },
+  "author": "Samuel Gopeh",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/amqplib": "^0.10.2",
+    "@types/node": "^20.6.0",
+    "ts-node": "^10.9.1",
+    "ts-patch": "^3.0.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.2.2",
+    "typescript-transform-paths": "^3.4.6"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.3.1",
+    "moment": "^2.29.4",
+    "mongodb": "^6.0.0",
+    "mongoose": "^7.5.1",
+    "nanoid": "^3.3.4",
+    "redis": "^4.6.10",
+    "socket.io": "^4.7.2"
+  }
+}

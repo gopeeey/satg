@@ -1,0 +1,43 @@
+@import "/public/fonts/stylesheet.css";
+@import "nav.css";
+@import "loader.css";
+@import "home.css";
+@import "race.css";
+
+:root {
+    --primaryColor: #E77200;
+    --secondaryColor: #0F0326;
+    --primaryDark: #934501;
+}
+
+body {
+    background-image: url("/public/images/background.png");
+    margin: 0px;
+    color: white;
+    font-family: robotoregular, Arial, Helvetica, sans-serif;
+    font-size: 16px;
+}
+
+::selection {
+    background: var(--primaryColor);
+}
+
+.button {
+    background-color: var(--primaryColor);
+    color: var(--secondaryColor);
+    padding: 0.8rem 1.7rem;
+    font-size: 0.8rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.5s;
+    letter-spacing: 0.4px;
+}
+
+.button:hover {
+    background-color: var(--primaryDark);
+}
+
+.button:active {
+    transform: scale(0.9);
+}
+

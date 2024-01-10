@@ -1,0 +1,149 @@
+#race {
+    display: grid;
+    grid-template-columns: 70%;
+    justify-content: center;
+    align-items: center;
+    column-gap: 4%;
+    padding-top: 2rem;
+}
+
+#race .section {
+    position: relative;
+}
+
+#race .trackRoot {
+    border-radius: 1rem;
+    background-color: rgba(64, 65, 73, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0rem 0rem 1.5rem 1.5rem;
+    overflow: hidden;
+}
+
+#race .trackRoot .track {
+    border-bottom: dashed 1px white;
+    position: relative;
+    margin-bottom: 0rem;
+}
+
+#race .trackRoot .track .car {
+    position: relative;
+    right: 0%;
+    margin-bottom: -2.2rem;
+    transition: all 0.7s;
+    z-index: 1;
+    width: 6rem;
+}
+
+#race .trackRoot .track .wpm {
+    position: absolute;
+    bottom: 0%;
+    display: block;
+    background-color: rgba(64, 65, 73, 1);
+    padding: 1.3rem 1rem;
+    right: 0%;
+    transition: all 0.7s;
+    z-index: 2;
+    font-family: "robotoblack_italic";
+    opacity: 0.75;
+    border-left: 1px solid rgba(255, 255, 255, 1);
+    min-width: 4rem;
+    /* clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 30% 100%, 30% 30%); */
+    }
+
+#race .trackRoot .track .wpm .label {
+    font-size: 0.7rem;
+    color: var(--primaryColor);
+    font-family: "robotoregular";
+}
+
+#race .textRoot {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-top: 1rem;
+}
+
+#race .topTaskBar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+#race #countDown {
+    font-family: "robotoblack_italic";
+    font-size: 2rem;
+}
+
+@keyframes shake {
+
+    10%, 90% {
+        transform: translate3d(-1px, -1px, 0);
+    }
+
+    20%, 80% {
+        transform: translate3d(2px, 1px, 0);
+    }
+
+    30%, 50%, 70% {
+        transform: translate3d(-4px, -4px, 0);
+    }
+
+    40%, 60% {
+        transform: translate3d(4px, 4px, 0);
+    }
+}
+
+#race #countDown.go {
+    color: #008E43;
+    animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    animation-iteration-count: infinite;
+}
+
+/* #race .leaveButton {
+} */
+
+#race .textRoot .textBox {
+    line-height: 3.5rem;
+
+        /* color: #38CF38; */
+        /* color: #EB4E4F; */
+}
+
+#race .textRoot .textBox .correct {
+    color: #38CF38;
+}
+
+#race .textRoot .textBox .wrong {
+    color: #EB4E4F;
+    background-color: rgba(235, 78, 79, 0.3);
+}
+
+#race .textRoot .textBox .untyped {
+    border-left: 1px solid var(--primaryColor);
+}
+
+.typing {
+    animation: typingAnimation 0.4s step-end infinite alternate;
+}
+
+@keyframes typingAnimation {
+    50% {border-left-color: transparent;}
+}
+
+#race .textRoot .textBox .excerptInfo {
+    color: var(--primaryColor);
+    margin-top: 2rem;
+}
+
+#race .textRoot .textBox .inputBox {
+    /* opacity: 0; */
+    position: fixed;
+    margin-left: -200vw;
+    cursor: default;
+}
+
