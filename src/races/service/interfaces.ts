@@ -78,6 +78,7 @@ export interface PlayerRaceProgressInterface {
   totalEntries: number;
   accuracy: number;
   lastInput: string;
+  position: number;
 }
 
 export interface RaceServiceInterface {

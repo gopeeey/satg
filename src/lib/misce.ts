@@ -16,12 +16,12 @@ export const avatarArray = [
 ];
 
 export const excerpts: ExcerptType[] = [
-  {
-    title: "Jane Eyre",
-    author: "Charlotte Bronte",
-    body: "A lover finds his mistress asleep on a mossy bank; he wishes to catch a glimpse of her fair face without waking her. He steals softly over the grass, careful to make no sound; he pauses-fancying she has stirred : he withdraws; not for worlds would he be seen. All is still: he again advances: he bends above her; a light veil rests on her features: he lifts it, bends lower; now his eyes anticipate the vision of beauty-warm, and blooming, and lovely, in rest. How hurried was their first glance! But how they fix! How he starts! How he suddenly and vehemently clasps in both arms the form he dared not, a moment since, touch with his finger! How he calls aloud a name, and drops his burden, and gazes on it wildly! He thus grasps and cries, and gazes, because he no longer fears to waken by any sound he can utter-by any movement he can make. He thought his love slept sweetly: he finds she is stonedead.",
-    year: 1899,
-  },
+  // {
+  //   title: "Jane Eyre",
+  //   author: "Charlotte Bronte",
+  //   body: "A lover finds his mistress asleep on a mossy bank; he wishes to catch a glimpse of her fair face without waking her. He steals softly over the grass, careful to make no sound; he pauses-fancying she has stirred : he withdraws; not for worlds would he be seen. All is still: he again advances: he bends above her; a light veil rests on her features: he lifts it, bends lower; now his eyes anticipate the vision of beauty-warm, and blooming, and lovely, in rest. How hurried was their first glance! But how they fix! How he starts! How he suddenly and vehemently clasps in both arms the form he dared not, a moment since, touch with his finger! How he calls aloud a name, and drops his burden, and gazes on it wildly! He thus grasps and cries, and gazes, because he no longer fears to waken by any sound he can utter-by any movement he can make. He thought his love slept sweetly: he finds she is stonedead.",
+  //   year: 1899,
+  // },
 
   // {
   //   title: "Into the Wild",
@@ -55,20 +55,20 @@ export const excerpts: ExcerptType[] = [
   //   year: 2016,
   // },
 
-  // {
-  //   author: "Pierre Teilhard de Chardin",
-  //   body: "Someday, after mastering the winds, the waves, the tides and gravity, we shall harness for God the energies of love, and then, for a second time in the history of the world, man will have discovered fire.",
-  // },
+  {
+    author: "Pierre Teilhard de Chardin",
+    body: "Someday, after mastering the winds, the waves, the tides and gravity, we shall harness for God the energies of love, and then, for a second time in the history of the world, man will have discovered fire.",
+  },
 
   // {
   //   author: "Adam Riess",
   //   body: "One of the most exciting things about dark energy is that it seems to live at the very nexus of two of our most successful theories of physics: quantum mechanics, which explains the physics of the small, and Einstein's Theory of General Relativity, which explains the physics of the large, including gravity.",
   // },
 
-  // {
-  //   title: "Please Look After Mom",
-  //   author: "Kyung-Sook Shin",
-  //   body: "All I wanted was for you to be free from everything. And with that freedom, you often showed me another world, so I wanted you to be even freer. I wanted you to be so free that you would live your life for other people.",
-  //   year: 2008,
-  // },
+  {
+    title: "Please Look After Mom",
+    author: "Kyung-Sook Shin",
+    body: "All I wanted was for you to be free from everything. And with that freedom, you often showed me another world, so I wanted you to be even freer. I wanted you to be so free that you would live your life for other people.",
+    year: 2008,
+  },
 ];

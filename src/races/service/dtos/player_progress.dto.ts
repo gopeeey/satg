@@ -2,14 +2,15 @@ import { PickWithOptional } from "src/types";
 import { PlayerRaceProgressInterface } from "../interfaces";
 
 export class PlayerProgressDto {
-  userId: PlayerRaceProgressInterface["userId"];
-  raceId: PlayerRaceProgressInterface["raceId"];
-  adjustedAvgWpm: PlayerRaceProgressInterface["adjustedAvgWpm"];
-  progress: PlayerRaceProgressInterface["progress"];
-  correctEntries: PlayerRaceProgressInterface["correctEntries"];
-  totalEntries: PlayerRaceProgressInterface["totalEntries"];
-  accuracy: PlayerRaceProgressInterface["accuracy"];
-  lastInput: PlayerRaceProgressInterface["lastInput"];
+  userId;
+  raceId;
+  adjustedAvgWpm;
+  progress;
+  correctEntries;
+  totalEntries;
+  accuracy;
+  lastInput;
+  position;
 
   constructor({
     adjustedAvgWpm = 0,
@@ -28,5 +29,6 @@ export class PlayerProgressDto {
     this.totalEntries = totalEntries;
     this.accuracy = accuracy;
     this.lastInput = lastInput;
+    this.position = 0;
   }
 }

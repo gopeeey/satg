@@ -97,7 +97,16 @@ class Race {
               </div>
 
               <div class="section trackRoot">
-              ${[...this.data.players]
+              ${this.data.players
+                .sort((a, b) => {
+                  if (a.userId === this.#user._id) {
+                    return -1;
+                  } else if (b.userId === this.#user._id) {
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                })
                 .map(
                   (player) =>
                     `
@@ -258,7 +267,7 @@ class Race {
   };
 
   // Updates the player's car progress on screen
-  updatePlayerProgress = ({ playerId, progress }) => {
+  updatePlayerProgress = ({ playerId, progress, position }) => {
     const car = document.getElementById(playerId);
     if (!car) return;
     const track = document.getElementById(`track_${playerId}`);
@@ -270,13 +279,24 @@ class Race {
     const actualPosition = scaleNumber(progress, 0, 100, 0, actualTrackPercent);
 
     car.style.left = `${actualPosition}%`;
+
+    if (position) {
+      if (position === 1) track.classList.add("first");
+      let posStr = position.toString();
+      if (position === 1) posStr += "st";
+      if (position === 2) posStr += "nd";
+      if (position === 3) posStr += "rd";
+      if (position > 3) posStr += "th";
+      track.setAttribute("data-before", posStr);
+    }
   };
 
   handlePlayerProgressUpdate = (progressUpdate) => {
-    const { userId, adjustedAvgWpm, progress, lastInput } = progressUpdate;
+    const { userId, adjustedAvgWpm, progress, lastInput, position } =
+      progressUpdate;
 
     // Update player's car progress on screen
-    this.updatePlayerProgress({ playerId: userId, progress });
+    this.updatePlayerProgress({ playerId: userId, progress, position });
 
     // Update the player's stats
     this.updateWpm({ playerId: userId, wpm: adjustedAvgWpm });

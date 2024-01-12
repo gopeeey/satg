@@ -24,7 +24,7 @@ export class RaceService implements RaceServiceInterface {
   private readonly _repo: RaceServiceDependencies["repo"];
   private readonly _socket: RaceServiceDependencies["socket"];
   readonly maxPlayersPerRace = 5;
-  readonly startCountDownDuration = 30; // seconds
+  readonly startCountDownDuration = 10; // seconds
   readonly maxRaceDuration = 10 * 60; // seconds
   readonly wordLength = 5; // characters
 
@@ -255,6 +255,18 @@ export class RaceService implements RaceServiceInterface {
     playerProgress.adjustedAvgWpm = Math.round(
       wpm * (playerProgress.accuracy / 100)
     );
+
+    // Get player position if they've completed the race
+    if (playerProgress.lastInput === race.excerpt.body) {
+      const key = `racePosition:${raceId}`;
+      let [res] = await redisClient
+        .multi()
+        .incr(key)
+        .expireAt(key, endMoment.toDate())
+        .exec();
+      playerProgress.position = Number(res) || 0;
+      await this.leaveRace(race._id, userId);
+    }
 
     // Update player's race progress object on redis
     await redisClient.setEx(

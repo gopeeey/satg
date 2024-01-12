@@ -27,10 +27,26 @@
     margin-bottom: 0rem;
 }
 
+#race .trackRoot .track::before {
+    content: attr(data-before);
+    color: white;
+    position: absolute;
+    left: calc(100% - 15.5rem);
+    padding: 2.3rem 1rem 1rem 1rem;
+}
+
+#race .trackRoot .first::before {
+    content: attr(data-before);
+    color: gold;
+    position: absolute;
+    left: calc(100% - 15.5rem);
+    padding: 2.3rem 1rem 1rem 1rem;
+}
+
 #race .trackRoot .track .car {
     position: relative;
     right: 0%;
-    margin-bottom: -2.2rem;
+    margin-bottom: -2.3rem;
     transition: all 0.7s;
     z-index: 1;
     width: 6rem;
@@ -50,7 +66,8 @@
     border-left: 1px solid rgba(255, 255, 255, 1);
     min-width: 4rem;
     /* clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 30% 100%, 30% 30%); */
-    }
+}
+
 
 #race .trackRoot .track .wpm .label {
     font-size: 0.7rem;
