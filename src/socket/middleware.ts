@@ -46,6 +46,7 @@ export class Middleware {
       const ongoingRace = await this._raceService.getOngoingRaceData(
         socket.userId
       );
+      if (ongoingRace) socket.join(ongoingRace.race._id);
 
       socket.emit("user:session", { user, ongoingRace });
     } catch (err) {

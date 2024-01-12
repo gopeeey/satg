@@ -14,15 +14,18 @@ class Race {
   #wrongTypedText = "";
   #typingTimeout = null;
   #errorCount = 0;
-  #started = false;
   #done = false;
   #countDownTimeout = null;
 
   constructor({ user, raceData, backToHomeFn, socket, wordLength }) {
     this.data = raceData;
     this.#user = user;
-    this.#backToHomeFn = backToHomeFn;
     this.#socket = socket;
+    this.#backToHomeFn = () => {
+      socket.emit(raceEvents.leaveRace, this.data._id);
+      if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+      backToHomeFn();
+    };
   }
 
   render() {
@@ -155,13 +158,13 @@ class Race {
 
   startCountDown = () => {
     this.#countDownTimeout = setInterval(() => {
-      console.log("tick");
       const now = new Date();
       const startTime = new Date(this.data.startTime);
       const diff = startTime.getTime() - now.getTime();
       const seconds = Math.ceil(diff / 1000);
       const el = document.getElementById("countDown");
 
+      if (!el) return;
       if (seconds > -3) {
         el.innerHTML = seconds > 0 ? seconds : "GO!";
         if (seconds <= 0) el.classList.add("go");
@@ -270,15 +273,19 @@ class Race {
   };
 
   handlePlayerProgressUpdate = (progressUpdate) => {
-    const { userId, avgWpm, adjustedAvgWpm, progress, accuracy } =
-      progressUpdate;
+    const { userId, adjustedAvgWpm, progress, lastInput } = progressUpdate;
 
-    // Update player's progress on screen
-    // if (userId !== this.#user.data._id)
+    // Update player's car progress on screen
     this.updatePlayerProgress({ playerId: userId, progress });
 
     // Update the player's stats
     this.updateWpm({ playerId: userId, wpm: adjustedAvgWpm });
+
+    // In the case of a reload/reconnection, update player's text progress
+    if (userId === this.#user.data._id && lastInput !== this.#typedText) {
+      this.setInputText(lastInput);
+      this.handleTextChange(lastInput);
+    }
   };
 
   handleNewPlayer = (newPlayer) => {

@@ -4,7 +4,7 @@ import {
 } from "@races/service/interfaces";
 import { AuthSocket } from "@socket/interfaces";
 import { raceEvents } from "./service/events";
-import { PlayerInputDto } from "./service/index";
+import { PlayerInputDto, RaceInterface } from "./service/index";
 
 // Defines and adds listeners to race events
 export const addListeners = (
@@ -32,6 +32,15 @@ export const addListeners = (
     await service.handlePlayerInput(dto);
   }
 
+  async function leaveRaceHandler(
+    this: AuthSocket,
+    raceId: RaceInterface["_id"]
+  ) {
+    if (!this.userId) return;
+    await service.leaveRace(raceId, this.userId);
+  }
+
   socket.on(raceEvents.join, raceJoinHandler);
   socket.on(raceEvents.playerInput, playerInputHandler);
+  socket.on(raceEvents.leave, leaveRaceHandler);
 };

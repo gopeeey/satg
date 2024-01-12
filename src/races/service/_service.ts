@@ -89,16 +89,6 @@ export class RaceService implements RaceServiceInterface {
         JSON.stringify(playerProgressDto)
       );
     }
-    // const playerProgress = new PlayerProgressDto({
-    //   userId: user._id,
-    //   raceId: race._id,
-    //   lastUpdated: moment(race.startTime).toISOString(),
-    // });
-    // await redisClient.setEx(
-    //   this.makePlayerProgressId(race._id, user._id),
-    //   moment(race.startTime).diff(nowMoment, "seconds") + this.maxRaceDuration,
-    //   JSON.stringify(playerProgress)
-    // );
 
     // Alert other players in race of new player and race info
     const newPlayer: PlayerInterface = {
@@ -293,6 +283,10 @@ export class RaceService implements RaceServiceInterface {
       progresses.push(progress);
     }
 
-    return { race, progresses };
+    return { race, progresses, wordLength: this.wordLength };
+  }
+
+  async leaveRace(raceId: RaceInterface["_id"], userId: UserInterface["_id"]) {
+    await this._repo.leaveRace(raceId, userId);
   }
 }

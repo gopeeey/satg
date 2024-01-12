@@ -1,7 +1,8 @@
-import { raceEvents } from "./events.js";
+import { raceEvents, userEvents } from "./events.js";
 import loader from "./loader.js";
 import Practice from "./practice.js";
 import Race from "./race.js";
+import User from "./user.js";
 
 class RaceManager {
   currentRace;
@@ -9,12 +10,13 @@ class RaceManager {
   #backToHomeFn;
   #user;
 
-  constructor({ socket, backToHome, user }) {
+  constructor({ socket, backToHome }) {
     this.#backToHomeFn = backToHome;
+    this.#user = new User(socket, backToHome);
     this.#socket = socket;
-    this.#user = user;
 
     // Add event listeners to the socket;
+    this.#socket.on(userEvents.session, this.#handleSession.bind(this));
     this.#socket.on(raceEvents.newPlayer, this.#handleNewPlayer.bind(this));
     this.#socket.on(
       raceEvents.playerUpdate,
@@ -25,20 +27,20 @@ class RaceManager {
   #handleNewPlayer({ newPlayer, race, wordLength }) {
     loader.hide();
     if (this.currentRace) {
-      console.log("I GET CALLED NEW PLAYER BEFORE");
       if (race._id !== this.currentRace.data._id) return;
-      console.log("I GET CALLED NEW PLAYER AFTER");
 
       // Add the new player
       this.currentRace.handleNewPlayer(newPlayer);
     } else {
+      const leaveFn = () => {
+        this.currentRace = null;
+        this.#backToHomeFn();
+      };
+
       if (race.practice) {
         this.currentRace = new Practice({
           user: this.#user,
-          backToHomeFn: () => {
-            this.currentRace = null;
-            this.#backToHomeFn();
-          },
+          backToHomeFn: leaveFn,
           socket: this.#socket,
           raceData: race,
           wordLength,
@@ -46,10 +48,7 @@ class RaceManager {
       } else {
         this.currentRace = new Race({
           user: this.#user,
-          backToHomeFn: () => {
-            this.currentRace = null;
-            this.#backToHomeFn();
-          },
+          backToHomeFn: leaveFn,
           socket: this.#socket,
           raceData: race,
           wordLength,
@@ -63,6 +62,16 @@ class RaceManager {
   #handleRaceProgressUpdate(progressUpdate) {
     if (this.currentRace) {
       this.currentRace.handlePlayerProgressUpdate(progressUpdate);
+    }
+  }
+
+  #handleSession({ user, ongoingRace }) {
+    this.#user.handleSession(user);
+    if (!ongoingRace) return;
+    const { race, progresses, wordLength } = ongoingRace;
+    this.#handleNewPlayer({ newPlayer: null, race, wordLength });
+    for (const prog of progresses) {
+      this.#handleRaceProgressUpdate(prog);
     }
   }
 }

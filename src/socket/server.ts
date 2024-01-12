@@ -19,7 +19,7 @@ export const createServer = () => {
 };
 
 export const attachListeners = (io: Server, deps: ContainerInterface) => {
-  const { userService, raceService } = deps;
+  const { raceService } = deps;
 
   const middleware = new Middleware(deps);
 

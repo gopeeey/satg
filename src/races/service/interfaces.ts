@@ -87,5 +87,11 @@ export interface RaceServiceInterface {
   getOngoingRaceData: (userId: UserInterface["_id"]) => Promise<{
     race: RaceInterface;
     progresses: PlayerRaceProgressInterface[];
+    wordLength: number;
   } | null>;
+
+  leaveRace: (
+    raceId: RaceInterface["_id"],
+    userId: UserInterface["_id"]
+  ) => Promise<void>;
 }

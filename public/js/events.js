@@ -7,4 +7,5 @@ export const raceEvents = {
   joinRace: "race:join",
   playerInput: "race:player-input",
   playerUpdate: "race:player-update",
+  leaveRace: "race:leave",
 };

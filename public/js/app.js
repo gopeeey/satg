@@ -1,18 +1,15 @@
 import home from "./home.js";
 import * as loader from "./loader.js";
 import RaceManager from "./race_manager.js";
-import User from "./user.js";
 const socket = io("", { autoConnect: false });
 
 const homeRenderer = home.getRenderer(socket);
 
 const init = () => {
   loader.show();
-  const user = new User(socket, homeRenderer);
-  const manager = new RaceManager({
+  new RaceManager({
     socket,
     backToHome: homeRenderer,
-    user,
   });
   socket.connect();
 };

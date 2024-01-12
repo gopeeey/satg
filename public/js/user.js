@@ -1,5 +1,4 @@
 import loader from "./loader.js";
-import { userEvents } from "./events.js";
 
 class User {
   data;
@@ -11,9 +10,6 @@ class User {
     const userId = this.#getUserId();
     socket.auth = { userId };
     this.#backToHomeFn = backToHome;
-
-    // Add event handlers to the socket
-    socket.on(userEvents.session, this.#handleSession.bind(this));
   }
 
   // Gets the userId from session storage
@@ -46,7 +42,7 @@ class User {
   }
 
   // Handler for the "user:session" event
-  #handleSession(user) {
+  handleSession(user) {
     this.#update(user);
     loader.hide();
     this.#backToHomeFn();
