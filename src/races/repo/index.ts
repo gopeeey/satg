@@ -4,6 +4,7 @@ import {
   PlayerInterface,
 } from "@races/service/index";
 import { RaceInterface, RaceRepoInterface } from "@races/service/interfaces";
+import { UserInterface } from "@users/service";
 import moment from "moment";
 import DbRace from "./model";
 
@@ -19,6 +20,7 @@ export class RaceRepo implements RaceRepoInterface {
       ...dto,
       players: [player],
       userIds: [dto.userId],
+      allowedPlayerIds: [dto.userId],
     });
     return race.toJSON();
   }
@@ -52,7 +54,7 @@ export class RaceRepo implements RaceRepoInterface {
       raceId,
       {
         $set: { startTime, endTime },
-        $addToSet: { userIds: userId },
+        $addToSet: { userIds: userId, allowedPlayerIds: userId },
         $push: { players: newPlayer },
       },
       { runValidators: true, new: true }
@@ -66,5 +68,19 @@ export class RaceRepo implements RaceRepoInterface {
   // Closes a race
   async closeRace(raceId: RaceInterface["_id"]) {
     await DbRace.findByIdAndUpdate(raceId, { $set: { closed: true } });
+  }
+
+  // Finds an ongoing race that the user has already joined and not left
+  async findUserOngoingRace(userId: UserInterface["_id"]) {
+    return await DbRace.findOne({
+      allowedPlayerIds: userId,
+      endTime: { $gte: moment().add(1, "minute").toDate() },
+    });
+  }
+
+  async leaveRace(raceId: RaceInterface["_id"], userId: UserInterface["_id"]) {
+    await DbRace.findByIdAndUpdate(raceId, {
+      $pull: { allowedPlayerIds: userId },
+    });
   }
 }

@@ -276,4 +276,23 @@ export class RaceService implements RaceServiceInterface {
     // Broadcast the player's new progress and wpm to all players in the race
     this._socket.emitToRoom(raceId, raceEvents.playerUpdate, playerProgress);
   }
+
+  // Gets an ongoing race that the player has not left
+  // as well as the progress data for all players in the race
+  async getOngoingRaceData(userId: UserInterface["_id"]) {
+    const race = await this._repo.findUserOngoingRace(userId);
+    if (!race) return null;
+    const progresses: PlayerRaceProgressInterface[] = [];
+
+    for (const playerId of race.allowedPlayerIds) {
+      const progressStr = await redisClient.get(
+        this.makePlayerProgressId(race._id, playerId)
+      );
+      if (!progressStr) continue;
+      const progress: PlayerRaceProgressInterface = JSON.parse(progressStr);
+      progresses.push(progress);
+    }
+
+    return { race, progresses };
+  }
 }

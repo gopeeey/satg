@@ -1,8 +1,8 @@
 import * as raceListeners from "@races/socket_listeners";
 import { AuthSocket } from "@socket/interfaces";
-import { UserMiddleware } from "@users/middleware";
 import { Server } from "socket.io";
 import { ContainerInterface } from "src/container";
+import { Middleware } from "./middleware";
 import { SocketIoAdapter } from "./socket_io_adapter";
 
 export const createServer = () => {
@@ -21,44 +21,17 @@ export const createServer = () => {
 export const attachListeners = (io: Server, deps: ContainerInterface) => {
   const { userService, raceService } = deps;
 
-  const userMiddleware = new UserMiddleware(userService);
+  const middleware = new Middleware(deps);
 
-  // Use usermiddleware to handle auth
+  // Use middleware to handle auth
   io.use(async (socket, next) => {
-    await userMiddleware.auth(socket, next);
+    await middleware.auth(socket, next);
   });
 
   // Use user middleware to handle session
   // Attach race event handlers
   io.on("connection", async (socket: AuthSocket) => {
-    await userMiddleware.session(socket);
+    await middleware.session(socket);
     raceListeners.addListeners(socket, raceService);
   });
 };
-
-// export const createSocketServer = (deps: ContainerInterface) => {
-//   const { userService, raceService } = deps;
-
-//   const io = new Server({
-//     connectionStateRecovery: {
-//       maxDisconnectionDuration: 10,
-//       skipMiddlewares: true,
-//     },
-//   });
-
-//   const userMiddleware = new UserMiddleware(userService);
-
-//   // Use usermiddleware to handle auth
-//   io.use(async (socket, next) => {
-//     await userMiddleware.auth(socket, next);
-//   });
-
-//   // Use user middleware to handle session
-//   // Attach race event handlers
-//   io.on("connection", async (socket: AuthSocket) => {
-//     await userMiddleware.session(socket);
-//     raceListeners.addListeners(socket, raceService);
-//   });
-
-//   return io;
-// };

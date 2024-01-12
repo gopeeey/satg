@@ -1,9 +1,5 @@
 import { generateId } from "@lib/helpers";
-import {
-  ExcerptType,
-  PlayerInterface,
-  RaceInterface,
-} from "@races/service/interfaces";
+import { ExcerptType, PlayerInterface, RaceInterface } from "@races/service";
 import mongoose from "mongoose";
 
 const player = new mongoose.Schema<PlayerInterface>({
@@ -31,6 +27,7 @@ const raceSchema = new mongoose.Schema<RaceInterface>(
     players: { type: [player], default: [] },
     practice: { type: Boolean, default: false },
     excerpt,
+    allowedPlayerIds: { type: [String], default: [] },
   },
   { timestamps: true }
 );

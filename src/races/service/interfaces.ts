@@ -26,6 +26,7 @@ export interface RaceInterface {
   players: PlayerInterface[];
   practice: boolean;
   excerpt: ExcerptType;
+  allowedPlayerIds: PlayerInterface["userId"][];
 }
 
 // Queues
@@ -49,8 +50,15 @@ export interface JoinRaceTaskQueueInterface
 export interface RaceRepoInterface {
   createRace: (dto: CreateRaceDto) => Promise<RaceInterface>;
   findSuitableRace: (wpm: number) => Promise<RaceInterface | null>;
+  findUserOngoingRace: (
+    userId: UserInterface["_id"]
+  ) => Promise<RaceInterface | null>;
   addPlayer: (dto: AddPlayerDto) => Promise<RaceInterface>;
   closeRace: (raceId: string) => Promise<void>;
+  leaveRace: (
+    raceId: RaceInterface["_id"],
+    userId: UserInterface["_id"]
+  ) => Promise<void>;
 }
 
 // Race service
@@ -59,12 +67,6 @@ export interface RaceServiceDependencies {
   getUserById: UserServiceInterface["getUserById"];
   repo: RaceRepoInterface;
   socket: SocketInterface;
-}
-
-export interface RaceServiceInterface {
-  queueRaceJoinRequest: (joinRequest: JoinRaceTaskType) => Promise<void>;
-  handleRaceJoinRequest: (joinRequest: JoinRaceTaskType) => Promise<void>;
-  handlePlayerInput: (playerInput: PlayerInputDto) => Promise<void>;
 }
 
 export interface PlayerRaceProgressInterface {
@@ -76,4 +78,14 @@ export interface PlayerRaceProgressInterface {
   totalEntries: number;
   accuracy: number;
   lastInput: string;
+}
+
+export interface RaceServiceInterface {
+  queueRaceJoinRequest: (joinRequest: JoinRaceTaskType) => Promise<void>;
+  handleRaceJoinRequest: (joinRequest: JoinRaceTaskType) => Promise<void>;
+  handlePlayerInput: (playerInput: PlayerInputDto) => Promise<void>;
+  getOngoingRaceData: (userId: UserInterface["_id"]) => Promise<{
+    race: RaceInterface;
+    progresses: PlayerRaceProgressInterface[];
+  } | null>;
 }
