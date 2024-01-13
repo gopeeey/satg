@@ -99,9 +99,9 @@ class Race {
               <div class="section trackRoot">
               ${this.data.players
                 .sort((a, b) => {
-                  if (a.userId === this.#user._id) {
+                  if (a.userId === this.#user.data._id) {
                     return -1;
-                  } else if (b.userId === this.#user._id) {
+                  } else if (b.userId === this.#user.data._id) {
                     return 1;
                   } else {
                     return 0;
@@ -111,8 +111,21 @@ class Race {
                   (player) =>
                     `
                     <div class="track" id="track_${player.userId}">
-                        <span class="wpm"><span id="wpm_${player.userId}">0</span> <span class="label">WPM</span></span>
-                        <img src="/public/images/${player.avatar}" alt="car" class="car" id="${player.userId}" />
+                        <span class="wpm"><span id="wpm_${
+                          player.userId
+                        }">0</span> <span class="label">WPM</span></span>
+                        <span class="car" id="${player.userId}">
+                          <span class="username">${
+                            player.userId === this.#user.data._id
+                              ? "you"
+                              : player.username
+                          }</span>
+
+                          <span class="position-hidden" id="${
+                            player.userId
+                          }_position">2nd</span>
+                          <img src="/public/images/${player.avatar}" alt="car"/>
+                        </span>
                     </div>
                     `
                 )
@@ -281,13 +294,16 @@ class Race {
     car.style.left = `${actualPosition}%`;
 
     if (position) {
-      if (position === 1) track.classList.add("first");
+      const posEl = document.getElementById(`${playerId}_position`);
+      if (!posEl) return;
+      posEl.classList.add("position");
+      if (position === 1) posEl.classList.add("first");
       let posStr = position.toString();
       if (position === 1) posStr += "st";
       if (position === 2) posStr += "nd";
       if (position === 3) posStr += "rd";
       if (position > 3) posStr += "th";
-      track.setAttribute("data-before", posStr);
+      posEl.innerHTML = posStr;
     }
   };
 

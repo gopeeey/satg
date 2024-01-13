@@ -25,40 +25,60 @@
     border-bottom: dashed 1px white;
     position: relative;
     margin-bottom: 0rem;
-}
-
-#race .trackRoot .track::before {
-    content: attr(data-before);
-    color: white;
-    position: absolute;
-    left: calc(100% - 15.5rem);
-    padding: 2.3rem 1rem 1rem 1rem;
-}
-
-#race .trackRoot .first::before {
-    content: attr(data-before);
-    color: gold;
-    position: absolute;
-    left: calc(100% - 15.5rem);
-    padding: 2.3rem 1rem 1rem 1rem;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
 }
 
 #race .trackRoot .track .car {
     position: relative;
     right: 0%;
-    margin-bottom: -2.3rem;
     transition: all 0.7s;
     z-index: 1;
     width: 6rem;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+
+#race .trackRoot .track .car .username {
+    font-size: 0.75rem;
+    opacity: 0.64;
+    position: absolute;
+    top: 15%;
+}
+
+#race .trackRoot .track .car img {
+    position: relative;
+    width: 100%;
+    margin-bottom: -2rem;
+    z-index: 2;
+}
+
+#race .trackRoot .track .car .position-hidden {
+    position: absolute;
+    left: 0%;
+    top: 57%;
+    opacity: 0;
+    transition: all 0.7s;
+    z-index: 1;
+}
+
+#race .trackRoot .track .car .position {
+    left: -36%;
+    opacity: 1;
+}
+
+#race .trackRoot .track .car .first {
+    color: gold;
 }
 
 #race .trackRoot .track .wpm {
-    position: absolute;
-    bottom: 0%;
+    position: relative;
     display: block;
     background-color: rgba(64, 65, 73, 1);
     padding: 1.3rem 1rem;
-    right: 0%;
     transition: all 0.7s;
     z-index: 2;
     font-family: "robotoblack_italic";
