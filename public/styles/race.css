@@ -132,6 +132,12 @@
     }
 }
 
+@keyframes blinkred {
+    50% {
+        color: red;
+    }
+}
+
 #race #countDown.go {
     color: #008E43;
     animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
@@ -139,6 +145,15 @@
     backface-visibility: hidden;
     perspective: 1000px;
     animation-iteration-count: infinite;
+}
+
+#race #countDown.about-to-end {
+    animation: blinkred 1.5s;
+    animation-iteration-count: infinite;
+}
+
+#race #countDown.ended {
+    color: red;
 }
 
 /* #race .leaveButton {

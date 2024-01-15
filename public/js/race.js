@@ -69,7 +69,8 @@ class Race {
             if (!el) return;
             el.addEventListener("keydown", (e) => {
               if (
-                new Date().getTime() < new Date(raceData.startTime).getTime()
+                new Date().getTime() < new Date(raceData.startTime).getTime() ||
+                new Date().getTime() >= new Date(raceData.endTime).getTime()
               ) {
                 return e.preventDefault();
               }
@@ -191,10 +192,23 @@ class Race {
         el.innerHTML = seconds > 0 ? seconds : "GO!";
         if (seconds <= 0) el.classList.add("go");
       } else {
-        clearInterval(this.#countDownTimeout);
-        this.#countDownTimeout = null;
-        el.style.opacity = "0";
+        const endTime = new Date(this.data.endTime);
         el.classList.remove("go");
+
+        if (endTime.getTime() <= now.getTime()) {
+          clearInterval(this.#countDownTimeout);
+          this.#countDownTimeout = null;
+          el.innerHTML = "Race ended";
+          el.classList.add("ended");
+        } else {
+          const diff = (endTime.getTime() - now.getTime()) / 1000;
+          let minutes = Math.floor(diff / 60).toString();
+          let seconds = Math.floor(diff - minutes * 60).toString();
+          if (minutes.length < 2) minutes = "0" + minutes;
+          if (seconds.length < 2) seconds = "0" + seconds;
+          el.innerHTML = `${minutes}:${seconds}`;
+          if (diff < 10) el.classList.add("about-to-end");
+        }
       }
     }, 1000);
   };

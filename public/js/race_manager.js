@@ -17,6 +17,7 @@ class RaceManager {
 
     // Add event listeners to the socket;
     this.#socket.on(userEvents.session, this.#handleSession.bind(this));
+    this.#socket.on(userEvents.update, this.#user.update.bind(this.#user));
     this.#socket.on(raceEvents.newPlayer, this.#handleNewPlayer.bind(this));
     this.#socket.on(
       raceEvents.playerUpdate,

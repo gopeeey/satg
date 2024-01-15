@@ -21,6 +21,7 @@ import {
 export class RaceService implements RaceServiceInterface {
   private readonly _publishJoinTask: RaceServiceDependencies["publishRaceJoinTask"];
   private readonly _getUserById: RaceServiceDependencies["getUserById"];
+  private readonly _updateUserStats: RaceServiceDependencies["updateUserStats"];
   private readonly _repo: RaceServiceDependencies["repo"];
   private readonly _socket: RaceServiceDependencies["socket"];
   readonly maxPlayersPerRace = 5;
@@ -33,6 +34,7 @@ export class RaceService implements RaceServiceInterface {
     this._socket = deps.socket;
     this._publishJoinTask = deps.publishRaceJoinTask;
     this._getUserById = deps.getUserById;
+    this._updateUserStats = deps.updateUserStats;
   }
 
   // Queues a race join request
@@ -61,7 +63,7 @@ export class RaceService implements RaceServiceInterface {
         .add(this.startCountDownDuration, "seconds")
         .toDate();
       addUserDto.endTime = moment()
-        .add(this.maxRaceDuration, "seconds")
+        .add(this.maxRaceDuration + this.startCountDownDuration, "seconds")
         .toDate();
     }
     const updatedRace = await this._repo.addPlayer(addUserDto);
@@ -213,6 +215,10 @@ export class RaceService implements RaceServiceInterface {
       playerRaceProgressStr
     );
 
+    // If the player already has a position, they've completed the race
+    // and no further updates should be made
+    if (playerProgress.position) return;
+
     const raceText = race.excerpt.body;
     let correctTypedText = "";
 
@@ -225,7 +231,9 @@ export class RaceService implements RaceServiceInterface {
       }
     }
 
-    const match = inputText.match(playerProgress.lastInput);
+    const match = inputText.match(
+      playerProgress.lastInput.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&")
+    );
     if (match) {
       const newCharsStart = playerProgress.lastInput.length;
       const newChars = inputText.slice(newCharsStart, inputText.length);
@@ -256,8 +264,9 @@ export class RaceService implements RaceServiceInterface {
       wpm * (playerProgress.accuracy / 100)
     );
 
-    // Get player position if they've completed the race
+    // If player has completed the race
     if (playerProgress.lastInput === race.excerpt.body) {
+      // Get their position
       const key = `racePosition:${raceId}`;
       let [res] = await redisClient
         .multi()
@@ -266,6 +275,9 @@ export class RaceService implements RaceServiceInterface {
         .exec();
       playerProgress.position = Number(res) || 0;
       await this.leaveRace(race._id, userId);
+
+      // Update their stats
+      await this.updateUserStats(userId, playerProgress.adjustedAvgWpm);
     }
 
     // Update player's race progress object on redis
@@ -300,5 +312,12 @@ export class RaceService implements RaceServiceInterface {
 
   async leaveRace(raceId: RaceInterface["_id"], userId: UserInterface["_id"]) {
     await this._repo.leaveRace(raceId, userId);
+  }
+
+  private async updateUserStats(userId: UserInterface["_id"], wpm: number) {
+    const user = await this._getUserById(userId);
+    let wpmTotal = user.avgwpm * user.gamesPlayed;
+    const newAvgWpm = (wpmTotal + wpm) / (user.gamesPlayed + 1);
+    await this._updateUserStats(user._id, user.gamesPlayed + 1, newAvgWpm);
   }
 }

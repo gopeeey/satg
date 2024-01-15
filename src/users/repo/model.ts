@@ -8,7 +8,6 @@ const userSchema = new mongoose.Schema<UserInterface>(
     username: { type: String, default: generateUserName },
     avgwpm: { type: Number, default: 0 },
     gamesPlayed: { type: Number, default: 0 },
-    gamesWon: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

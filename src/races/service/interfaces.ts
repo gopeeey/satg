@@ -65,6 +65,7 @@ export interface RaceRepoInterface {
 export interface RaceServiceDependencies {
   publishRaceJoinTask: JoinRaceTaskQueueInterface["publish"];
   getUserById: UserServiceInterface["getUserById"];
+  updateUserStats: UserServiceInterface["updateUserStats"];
   repo: RaceRepoInterface;
   socket: SocketInterface;
 }

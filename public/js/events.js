@@ -1,5 +1,6 @@
 export const userEvents = {
   session: "user:session",
+  update: "user:update",
 };
 
 export const raceEvents = {

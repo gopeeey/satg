@@ -20,7 +20,7 @@ export const buildContainer = (socket: SocketInterface) => {
 
   // Instantiate repos and services
   const userRepo = new UserRepo();
-  const userService = new UserService({ repo: userRepo });
+  const userService = new UserService({ repo: userRepo, socket });
 
   const raceRepo = new RaceRepo();
   const raceService = new RaceService({
@@ -28,6 +28,7 @@ export const buildContainer = (socket: SocketInterface) => {
     socket,
     getUserById: userService.getUserById.bind(userService),
     publishRaceJoinTask: joinRaceQueue.publish.bind(joinRaceQueue),
+    updateUserStats: userService.updateUserStats.bind(userService),
   });
 
   // Consume queues
@@ -40,6 +41,5 @@ export const buildContainer = (socket: SocketInterface) => {
     raceService,
   };
 
-  // A container serves as the context on which the app runs
   return container;
 };

@@ -23,7 +23,7 @@ class User {
   }
 
   // Updates user's data and info displayed in the nav bar
-  #update(user) {
+  update(user) {
     this.#setUserId(user._id);
     this.data = user;
 
@@ -43,7 +43,7 @@ class User {
 
   // Handler for the "user:session" event
   handleSession(user) {
-    this.#update(user);
+    this.update(user);
     loader.hide();
     this.#backToHomeFn();
   }

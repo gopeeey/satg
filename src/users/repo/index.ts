@@ -13,4 +13,17 @@ export class UserRepo implements UserRepoInterface {
     const user = await User.findById(id);
     return user?.toJSON<UserInterface>();
   }
+
+  async updateUserStats(
+    userId: UserInterface["_id"],
+    gamesPlayed: number,
+    avgWpm: number
+  ) {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: { gamesPlayed, avgwpm: Math.round(avgWpm) } },
+      { new: true }
+    );
+    return user?.toJSON<UserInterface>() || null;
+  }
 }
