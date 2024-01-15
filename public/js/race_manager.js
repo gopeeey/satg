@@ -18,6 +18,7 @@ class RaceManager {
     // Add event listeners to the socket;
     this.#socket.on(userEvents.session, this.#handleSession.bind(this));
     this.#socket.on(userEvents.update, this.#user.update.bind(this.#user));
+    this.#socket.on(raceEvents.ongoingRace, this.#handleOngoingRace.bind(this));
     this.#socket.on(raceEvents.newPlayer, this.#handleNewPlayer.bind(this));
     this.#socket.on(
       raceEvents.playerUpdate,
@@ -66,14 +67,17 @@ class RaceManager {
     }
   }
 
-  #handleSession({ user, ongoingRace }) {
-    this.#user.handleSession(user);
-    if (!ongoingRace) return;
-    const { race, progresses, wordLength } = ongoingRace;
+  #handleOngoingRace({ race, progresses, wordLength }) {
     this.#handleNewPlayer({ newPlayer: null, race, wordLength });
     for (const prog of progresses) {
       this.#handleRaceProgressUpdate(prog);
     }
+  }
+
+  #handleSession({ user, ongoingRace }) {
+    this.#user.handleSession(user);
+    if (!ongoingRace) return;
+    this.#handleOngoingRace(ongoingRace);
   }
 }
 

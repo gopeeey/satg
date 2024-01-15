@@ -83,4 +83,23 @@ export class RaceRepo implements RaceRepoInterface {
       $pull: { allowedPlayerIds: userId },
     });
   }
+
+  async findUserEmptyRace(userId: UserInterface["_id"]) {
+    const race = await DbRace.findOne({
+      userIds: userId,
+      "userIds.0": userId,
+      "userIds.1": { $exists: false },
+    });
+    return race ? race.toJSON<RaceInterface>() : null;
+  }
+
+  async updateRaceWpm(
+    id: RaceInterface["_id"],
+    maxWpm: number,
+    minWpm: number
+  ) {
+    await DbRace.findByIdAndUpdate(id, {
+      $set: { maxWpm, minWpm },
+    });
+  }
 }

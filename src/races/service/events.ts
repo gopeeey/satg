@@ -4,4 +4,5 @@ export const raceEvents = {
   playerInput: "race:player-input",
   playerUpdate: "race:player-update",
   leave: "race:leave",
+  ongoingRace: "race:ongoing-race",
 };

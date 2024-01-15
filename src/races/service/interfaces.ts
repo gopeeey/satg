@@ -59,6 +59,14 @@ export interface RaceRepoInterface {
     raceId: RaceInterface["_id"],
     userId: UserInterface["_id"]
   ) => Promise<void>;
+  findUserEmptyRace: (
+    userId: UserInterface["_id"]
+  ) => Promise<RaceInterface | null>;
+  updateRaceWpm: (
+    id: RaceInterface["_id"],
+    maxWpm: number,
+    minWpm: number
+  ) => Promise<void>;
 }
 
 // Race service

@@ -32,7 +32,9 @@ const raceSchema = new mongoose.Schema<RaceInterface>(
   { timestamps: true }
 );
 
+raceSchema.index({ allowedPlayerIds: 1, endTime: 1 });
 raceSchema.index({ closed: 1, minWpm: 1, maxWpm: -1 });
+raceSchema.index({ userIds: 1 });
 
 const DbRace = mongoose.model("races", raceSchema);
 

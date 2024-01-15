@@ -39,6 +39,19 @@ export class RaceService implements RaceServiceInterface {
 
   // Queues a race join request
   async queueRaceJoinRequest(joinRequest: JoinRaceTaskType) {
+    if (!joinRequest.practice) {
+      // Check if user has an ongoing race that they didn't leave
+      const ongoingRaceData = await this.getOngoingRaceData(joinRequest.userId);
+      if (ongoingRaceData) {
+        this._socket.addToRoom(ongoingRaceData.race._id, joinRequest.userId);
+        this._socket.emitToRoom(
+          joinRequest.userId,
+          raceEvents.ongoingRace,
+          ongoingRaceData
+        );
+        return;
+      }
+    }
     // Publish the join request to the race join queue
     await this._publishJoinTask(joinRequest);
   }
@@ -182,6 +195,20 @@ export class RaceService implements RaceServiceInterface {
     if (race) {
       await this.joinRace(race, user);
     } else {
+      if (!practice) {
+        // Check if the user already has a non practice race waiting for other players to join
+        const existingOpenRace = await this._repo.findUserEmptyRace(userId);
+        if (existingOpenRace) {
+          const user = await this._getUserById(userId);
+          await this._repo.updateRaceWpm(
+            existingOpenRace._id,
+            user.avgwpm + 20,
+            Math.max(user.avgwpm - 15, 0)
+          );
+          this._socket.addToRoom(existingOpenRace._id, userId);
+          return;
+        }
+      }
       // If no suitable race is found create a new one
       await this.createNewRace(user, practice);
     }
