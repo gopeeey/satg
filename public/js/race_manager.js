@@ -54,6 +54,7 @@ class RaceManager {
           socket: this.#socket,
           raceData: race,
           wordLength,
+          clearRaceFn: this.#clearCurrentRace,
         });
       }
 
@@ -78,6 +79,10 @@ class RaceManager {
     this.#user.handleSession(user);
     if (!ongoingRace) return;
     this.#handleOngoingRace(ongoingRace);
+  }
+
+  #clearCurrentRace() {
+    this.currentRace = null;
   }
 }
 

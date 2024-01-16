@@ -108,6 +108,11 @@
     margin-bottom: 2rem;
 }
 
+#race .topTaskBar .actions {
+    display: flex;
+    align-items: center;
+}
+
 #race #countDown {
     font-family: "robotoblack_italic";
     font-size: 2rem;
@@ -156,8 +161,9 @@
     color: red;
 }
 
-/* #race .leaveButton {
-} */
+#raceAgain {
+    margin-right: 1rem;
+}
 
 #race .textRoot .textBox {
     line-height: 3.5rem;

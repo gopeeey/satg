@@ -1,5 +1,6 @@
 import { raceEvents } from "./events.js";
 import { scaleNumber } from "./helpers.js";
+import loader from "./loader.js";
 
 const textInputId = "thisisthetextinputid";
 const textRootId = "thisisthetextrootid";
@@ -16,8 +17,9 @@ class Race {
   #errorCount = 0;
   #done = false;
   #countDownTimeout = null;
+  #clearRaceFn;
 
-  constructor({ user, raceData, backToHomeFn, socket, wordLength }) {
+  constructor({ user, raceData, backToHomeFn, socket, clearRaceFn }) {
     this.data = raceData;
     this.#user = user;
     this.#socket = socket;
@@ -26,6 +28,7 @@ class Race {
       if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
       backToHomeFn();
     };
+    this.#clearRaceFn = clearRaceFn;
   }
 
   render() {
@@ -40,7 +43,7 @@ class Race {
         _id: `leave_${this.data._id}`,
         events: [{ event: "onclick", handler: () => this.#backToHomeFn() }],
         get element() {
-          return `<span class="button leaveButton" id="${this._id}">Quit race</span>`;
+          return `<span class="button leaveButton" id="${this._id}">Leave race</span>`;
         },
       },
 
@@ -91,10 +94,13 @@ class Race {
 
     root.innerHTML = `
           <div id="race">
-              <div class="section topTaskBar">
+              <div class="section topTaskBar" >
                 <span id="countDown">Starts in</span>
 
-                ${eventElements.leaveRace.element}
+                <div class="actions" id="gameActions">${
+                  eventElements.leaveRace.element
+                }</div>
+                
               </div>
 
               <div class="section trackRoot">
@@ -211,6 +217,53 @@ class Race {
         }
       }
     }, 1000);
+  };
+
+  updateGameActionsOnEnd = () => {
+    const container = document.getElementById("gameActions");
+    if (!container) return;
+    const eventElements = {
+      leaveRace: {
+        _id: `leave_${this.data._id}`,
+        events: [{ event: "onclick", handler: this.#backToHomeFn }],
+        get element() {
+          return `<span class="button button-outlined" id="${this._id}">Leave race</span>`;
+        },
+      },
+
+      raceAgain: {
+        _id: `raceAgain`,
+        events: [
+          {
+            event: "onclick",
+            handler: () => {
+              console.log("RACE AGAIN IS GETTING CLICKED");
+              this.#clearRaceFn();
+              loader.show();
+              this.#socket.emit(raceEvents.joinRace, this.data.practice);
+            },
+          },
+        ],
+        get element() {
+          return `<span class="button" id="${this._id}">Race again</span>`;
+        },
+      },
+    };
+
+    container.innerHTML = `
+      ${eventElements.leaveRace.element}
+      ${eventElements.raceAgain.element}
+    `;
+
+    for (const key in eventElements) {
+      const obj = eventElements[key];
+      const el = document.getElementById(obj._id);
+      if (!el) continue;
+      for (const ev of obj.events) {
+        if (typeof ev.handler === "function")
+          el[ev.event] = (e) => ev.handler(e);
+      }
+    }
   };
 
   setInputText = (newText) => {
@@ -336,6 +389,10 @@ class Race {
       this.setInputText(lastInput);
       this.handleTextChange(lastInput);
     }
+
+    // When the player has completed the race, update the game actions
+    if (userId === this.#user.data._id && position)
+      this.updateGameActionsOnEnd();
   };
 
   handleNewPlayer = (newPlayer) => {

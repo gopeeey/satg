@@ -33,6 +33,18 @@ body {
     letter-spacing: 0.4px;
 }
 
+.button-outlined {
+    background-color: transparent;
+    border: 1px solid var(--primaryColor);
+    color: var(--primaryColor);
+    padding: 0.8rem 1.7rem;
+    font-size: 0.8rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.5s;
+    letter-spacing: 0.4px;
+}
+
 .button:hover {
     background-color: var(--primaryDark);
 }
