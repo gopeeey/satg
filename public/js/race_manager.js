@@ -54,7 +54,7 @@ class RaceManager {
           socket: this.#socket,
           raceData: race,
           wordLength,
-          clearRaceFn: this.#clearCurrentRace,
+          clearRaceFn: this.#clearCurrentRace.bind(this),
         });
       }
 

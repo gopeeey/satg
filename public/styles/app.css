@@ -43,6 +43,7 @@ body {
     cursor: pointer;
     transition: all 0.5s;
     letter-spacing: 0.4px;
+    display: inline-block;
 }
 
 .button:hover {

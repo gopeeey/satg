@@ -162,7 +162,14 @@
 }
 
 #raceAgain {
-    margin-right: 1rem;
+    margin-left: 1rem;
+}
+
+#race .summaryTitle {
+    color: var(--primaryColor);
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-top: 1.5rem;
 }
 
 #race .textRoot .textBox {

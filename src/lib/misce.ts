@@ -55,20 +55,26 @@ export const excerpts: ExcerptType[] = [
   //   year: 2016,
   // },
 
-  {
-    author: "Pierre Teilhard de Chardin",
-    body: "Someday, after mastering the winds, the waves, the tides and gravity, we shall harness for God the energies of love, and then, for a second time in the history of the world, man will have discovered fire.",
-  },
+  // {
+  //   author: "Pierre Teilhard de Chardin",
+  //   body: "Someday, after mastering the winds, the waves, the tides and gravity, we shall harness for God the energies of love, and then, for a second time in the history of the world, man will have discovered fire.",
+  // },
 
   // {
   //   author: "Adam Riess",
   //   body: "One of the most exciting things about dark energy is that it seems to live at the very nexus of two of our most successful theories of physics: quantum mechanics, which explains the physics of the small, and Einstein's Theory of General Relativity, which explains the physics of the large, including gravity.",
   // },
 
+  // {
+  //   title: "Please Look After Mom",
+  //   author: "Kyung-Sook Shin",
+  //   body: "All I wanted was for you to be free from everything. And with that freedom, you often showed me another world, so I wanted you to be even freer. I wanted you to be so free that you would live your life for other people.",
+  //   year: 2008,
+  // },
+
   {
-    title: "Please Look After Mom",
-    author: "Kyung-Sook Shin",
-    body: "All I wanted was for you to be free from everything. And with that freedom, you often showed me another world, so I wanted you to be even freer. I wanted you to be so free that you would live your life for other people.",
-    year: 2008,
+    title: "Just a test text",
+    author: "Dev",
+    body: "Testing",
   },
 ];

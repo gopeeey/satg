@@ -18,6 +18,7 @@ class Race {
   #done = false;
   #countDownTimeout = null;
   #clearRaceFn;
+  endPlayerIds = [];
 
   constructor({ user, raceData, backToHomeFn, socket, clearRaceFn }) {
     this.data = raceData;
@@ -26,6 +27,7 @@ class Race {
     this.#backToHomeFn = () => {
       socket.emit(raceEvents.leaveRace, this.data._id);
       if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+      clearRaceFn();
       backToHomeFn();
     };
     this.#clearRaceFn = clearRaceFn;
@@ -99,7 +101,8 @@ class Race {
 
                 <div class="actions" id="gameActions">${
                   eventElements.leaveRace.element
-                }</div>
+                }
+                </div>
                 
               </div>
 
@@ -185,6 +188,36 @@ class Race {
     this.startCountDown();
   }
 
+  showSummary({ position, accuracy, wpm, finishedTimeStamp }) {
+    const el = document.getElementById("race");
+    if (!el) return;
+    const diff =
+      (finishedTimeStamp.getTime() - new Date(this.data.startTime).getTime()) /
+      1000;
+
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <div class="summaryTitle">Race summary</div>
+      ${[
+        { name: "Position", value: this.#positionifyNum(position) },
+        { name: "WPM", value: wpm + " WPM" },
+        { name: "Accuracy", value: Math.floor(accuracy) + "%" },
+        { name: "Time", value: this.#secondsToDurationStr(diff) },
+      ]
+        .map(
+          (field) => `
+          <p className="field">
+            <span class="fieldName">${field.name}:</span>
+            <span class="fieldValue"> ${field.value}</span>
+          </p>`
+        )
+        .join(" ")}
+    `;
+    div.classList.add("summary");
+
+    el.appendChild(div);
+  }
+
   startCountDown = () => {
     this.#countDownTimeout = setInterval(() => {
       const now = new Date();
@@ -208,11 +241,7 @@ class Race {
           el.classList.add("ended");
         } else {
           const diff = (endTime.getTime() - now.getTime()) / 1000;
-          let minutes = Math.floor(diff / 60).toString();
-          let seconds = Math.floor(diff - minutes * 60).toString();
-          if (minutes.length < 2) minutes = "0" + minutes;
-          if (seconds.length < 2) seconds = "0" + seconds;
-          el.innerHTML = `${minutes}:${seconds}`;
+          el.innerHTML = this.#secondsToDurationStr(diff);
           if (diff < 10) el.classList.add("about-to-end");
         }
       }
@@ -237,7 +266,8 @@ class Race {
           {
             event: "onclick",
             handler: () => {
-              console.log("RACE AGAIN IS GETTING CLICKED");
+              if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+              this.#countDownTimeout = null;
               this.#clearRaceFn();
               loader.show();
               this.#socket.emit(raceEvents.joinRace, this.data.practice);
@@ -365,17 +395,18 @@ class Race {
       if (!posEl) return;
       posEl.classList.add("position");
       if (position === 1) posEl.classList.add("first");
-      let posStr = position.toString();
-      if (position === 1) posStr += "st";
-      if (position === 2) posStr += "nd";
-      if (position === 3) posStr += "rd";
-      if (position > 3) posStr += "th";
+      let posStr = this.#positionifyNum(position);
       posEl.innerHTML = posStr;
+
+      this.endPlayerIds.push(playerId);
+      if (this.endPlayerIds.length >= this.data.userIds.length) {
+        this.data.endTime = new Date().toISOString();
+      }
     }
   };
 
   handlePlayerProgressUpdate = (progressUpdate) => {
-    const { userId, adjustedAvgWpm, progress, lastInput, position } =
+    const { userId, adjustedAvgWpm, progress, lastInput, position, accuracy } =
       progressUpdate;
 
     // Update player's car progress on screen
@@ -391,14 +422,40 @@ class Race {
     }
 
     // When the player has completed the race, update the game actions
-    if (userId === this.#user.data._id && position)
+    // and show their summary
+    if (userId === this.#user.data._id && position) {
       this.updateGameActionsOnEnd();
+      this.showSummary({
+        accuracy,
+        position,
+        wpm: adjustedAvgWpm,
+        finishedTimeStamp: new Date(),
+      });
+    }
   };
 
   handleNewPlayer = (newPlayer) => {
     this.data.players.push(newPlayer);
     this.render();
   };
+
+  #positionifyNum(num) {
+    let posStr = num.toString();
+    if (num === 1) posStr += "st";
+    if (num === 2) posStr += "nd";
+    if (num === 3) posStr += "rd";
+    if (num > 3) posStr += "th";
+
+    return posStr;
+  }
+
+  #secondsToDurationStr(secs) {
+    let minutes = Math.floor(secs / 60).toString();
+    let seconds = Math.floor(secs % 60).toString();
+    if (minutes.length < 2) minutes = "0" + minutes;
+    if (seconds.length < 2) seconds = "0" + seconds;
+    return `${minutes}:${seconds}`;
+  }
 }
 
 export default Race;

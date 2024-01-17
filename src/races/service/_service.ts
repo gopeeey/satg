@@ -325,7 +325,7 @@ export class RaceService implements RaceServiceInterface {
     if (!race) return null;
     const progresses: PlayerRaceProgressInterface[] = [];
 
-    for (const playerId of race.allowedPlayerIds) {
+    for (const playerId of race.userIds) {
       const progressStr = await redisClient.get(
         this.makePlayerProgressId(race._id, playerId)
       );

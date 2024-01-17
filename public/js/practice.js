@@ -32,7 +32,7 @@ class Practice {
         _id: `leave_${this.#data._id}`,
         events: [{ event: "onclick", handler: () => this.#backToHomeFn() }],
         get element() {
-          return `<span id="${this._id}">Leave game</span>`;
+          return `<span class="button leaveButton" id="${this._id}">Leave practice</span>`;
         },
       },
 
@@ -83,13 +83,11 @@ class Practice {
     root.innerHTML = `
           <div id="race">
               <div class="section topTaskBar">
-                <span class="button leaveButton" id="${
-                  eventElements.leaveRace._id
-                }">Quit race</span>
+                ${eventElements.leaveRace.element}
               </div>
 
               <div class="section trackRoot">
-              ${[...this.#data.players, ...this.#data.players]
+              ${this.#data.players
                 .map(
                   (player) =>
                     `
