@@ -6,6 +6,8 @@ const player = new mongoose.Schema<PlayerInterface>({
   userId: { type: String },
   username: { type: String },
   avatar: { type: String },
+  isBot: { type: Boolean, default: false },
+  wpm: { type: Number },
 });
 
 const excerpt = new mongoose.Schema<ExcerptType>({

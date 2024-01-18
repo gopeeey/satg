@@ -3,17 +3,21 @@ type PropsType = {
   username: string;
   avatar: string;
   raceId: string;
+  isBot: boolean;
+  wpm?: number;
   startTime?: Date;
   endTime?: Date;
 };
 
 export class AddPlayerDto {
-  userId: string;
-  username: string;
-  avatar: string;
-  raceId: string;
-  startTime?: Date;
-  endTime?: Date;
+  userId;
+  username;
+  avatar;
+  raceId;
+  startTime;
+  endTime;
+  isBot;
+  wpm;
 
   constructor(body: PropsType) {
     this.userId = body.userId;
@@ -22,5 +26,7 @@ export class AddPlayerDto {
     this.raceId = body.raceId;
     this.startTime = body.startTime;
     this.endTime = body.endTime;
+    this.isBot = body.isBot;
+    this.wpm = body.wpm;
   }
 }

@@ -6,6 +6,8 @@ export interface PlayerInterface {
   userId: UserInterface["_id"];
   username: UserInterface["username"];
   avatar: string;
+  isBot: boolean;
+  wpm?: number;
 }
 
 export type ExcerptType = {
@@ -28,6 +30,12 @@ export interface RaceInterface {
   allowedPlayerIds: PlayerInterface["userId"][];
 }
 
+export interface BotInterface {
+  username: string;
+  _id: string;
+  wpm: number;
+}
+
 // Queues
 export type ConsumerHandlerType<M> = (message: M) => Promise<void>;
 
@@ -38,10 +46,18 @@ export interface TaskQueueInterface<M> {
   concurrency: number;
 }
 
-export type JoinRaceTaskType = {
-  userId: UserInterface["_id"];
-  practice: boolean;
-};
+export type JoinRaceTaskType =
+  | {
+      userId: UserInterface["_id"];
+      practice: boolean;
+      entity: "player";
+    }
+  | {
+      raceId: RaceInterface["_id"];
+      bot: BotInterface;
+      entity: "bot";
+    };
+
 export interface JoinRaceTaskQueueInterface
   extends TaskQueueInterface<JoinRaceTaskType> {}
 
@@ -66,6 +82,7 @@ export interface RaceRepoInterface {
     maxWpm: number,
     minWpm: number
   ) => Promise<void>;
+  findById: (id: string) => Promise<RaceInterface | null>;
 }
 
 // Race service
@@ -89,6 +106,11 @@ export interface PlayerRaceProgressInterface {
   position: number;
 }
 
+export type BotPositionUpdateType = {
+  botId: BotInterface["_id"];
+  raceId: RaceInterface["_id"];
+  botWpm: number;
+};
 export interface RaceServiceInterface {
   queueRaceJoinRequest: (joinRequest: JoinRaceTaskType) => Promise<void>;
   handleRaceJoinRequest: (joinRequest: JoinRaceTaskType) => Promise<void>;
@@ -103,4 +125,6 @@ export interface RaceServiceInterface {
     raceId: RaceInterface["_id"],
     userId: UserInterface["_id"]
   ) => Promise<void>;
+
+  updateBotPosition: (data: BotPositionUpdateType) => Promise<void>;
 }

@@ -15,6 +15,7 @@ export class RaceRepo implements RaceRepoInterface {
       userId: dto.userId,
       username: dto.username,
       avatar: dto.avatar,
+      isBot: false,
     };
     const race = await DbRace.create({
       ...dto,
@@ -43,11 +44,12 @@ export class RaceRepo implements RaceRepoInterface {
   // Adds a user's id to a race's array of user ids and
   // updates the start and end time
   async addPlayer(dto: AddPlayerDto) {
-    const { userId, username, avatar, raceId, startTime, endTime } = dto;
+    const { userId, username, avatar, raceId, startTime, endTime, isBot, wpm } =
+      dto;
 
     const race = await DbRace.findById(raceId);
     if (!race) throw new Error("Race not found");
-    const newPlayer: PlayerInterface = { userId, username, avatar };
+    const newPlayer: PlayerInterface = { userId, username, avatar, isBot, wpm };
 
     const savedRace = await DbRace.findByIdAndUpdate(
       raceId,
@@ -88,6 +90,7 @@ export class RaceRepo implements RaceRepoInterface {
       userIds: userId,
       "userIds.0": userId,
       "userIds.1": { $exists: false },
+      startTime: { $exists: false },
     });
     return race ? race.toJSON<RaceInterface>() : null;
   }
@@ -100,5 +103,10 @@ export class RaceRepo implements RaceRepoInterface {
     await DbRace.findByIdAndUpdate(id, {
       $set: { maxWpm, minWpm },
     });
+  }
+
+  async findById(id: RaceInterface["_id"]) {
+    const race = await DbRace.findById(id);
+    return race ? race.toJSON<RaceInterface>() : null;
   }
 }

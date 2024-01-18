@@ -6,11 +6,19 @@ import {
 } from "@races/service/interfaces";
 import { UserInterface } from "@users/service/interfaces";
 import moment from "moment";
-import { generateAvatar, generateExcerpt } from "src/lib/helpers";
+import {
+  generateAvatar,
+  generateExcerpt,
+  generateId,
+  generateUserName,
+  randNumBtw,
+} from "src/lib/helpers";
 import { redisClient } from "src/redis";
 import { raceEvents } from "./events";
 import {
   AddPlayerDto,
+  BotInterface,
+  BotPositionUpdateType,
   CreateRaceDto,
   PlayerInputDto,
   PlayerInterface,
@@ -28,6 +36,7 @@ export class RaceService implements RaceServiceInterface {
   readonly startCountDownDuration = 10; // seconds
   readonly maxRaceDuration = 10 * 60; // seconds
   readonly wordLength = 5; // characters
+  readonly botsJoinTimeThreshold = 10; // seconds
 
   constructor(deps: RaceServiceDependencies) {
     this._repo = deps.repo;
@@ -39,6 +48,7 @@ export class RaceService implements RaceServiceInterface {
 
   // Queues a race join request
   async queueRaceJoinRequest(joinRequest: JoinRaceTaskType) {
+    if (joinRequest.entity === "bot") return;
     if (!joinRequest.practice) {
       // Check if user has an ongoing race that they didn't leave
       const ongoingRaceData = await this.getOngoingRaceData(joinRequest.userId);
@@ -64,7 +74,10 @@ export class RaceService implements RaceServiceInterface {
   }
 
   // Adds a user to a race
-  async joinRace(race: RaceInterface, user: UserInterface) {
+  private async joinRace(
+    race: RaceInterface,
+    user: { username: string; _id: string; isBot: boolean; wpm?: number }
+  ) {
     // Generate a new avatar for the new player
     const userAvatar = generateAvatar(
       race.players.map((player) => player.avatar)
@@ -76,6 +89,8 @@ export class RaceService implements RaceServiceInterface {
       username: user.username,
       avatar: userAvatar,
       raceId: race._id,
+      isBot: user.isBot,
+      wpm: user.wpm,
     });
     // if race has no start or end time, add them
     if (!race.startTime) {
@@ -87,7 +102,7 @@ export class RaceService implements RaceServiceInterface {
         .toDate();
     }
     const updatedRace = await this._repo.addPlayer(addUserDto);
-    this._socket.addToRoom(race._id, user._id);
+    if (!user.isBot) this._socket.addToRoom(race._id, user._id);
 
     // Update race on redis
     const nowMoment = moment();
@@ -99,7 +114,7 @@ export class RaceService implements RaceServiceInterface {
     );
 
     // Create player progresses
-    for (const player of updatedRace.players) {
+    for (const player of updatedRace.players.filter((pl) => !pl.isBot)) {
       const playerProgressDto = new PlayerProgressDto({
         userId: player.userId,
         raceId: race._id,
@@ -117,6 +132,8 @@ export class RaceService implements RaceServiceInterface {
       userId: user._id,
       username: user.username,
       avatar: userAvatar,
+      isBot: user.isBot,
+      wpm: user.wpm,
     };
     const data = { newPlayer, race: updatedRace, wordLength: this.wordLength };
 
@@ -135,7 +152,7 @@ export class RaceService implements RaceServiceInterface {
   }
 
   // Creates a new race
-  async createNewRace(user: UserInterface, practice: boolean) {
+  private async createNewRace(user: UserInterface, practice: boolean) {
     // Create race
     const newRace = await this._repo.createRace(
       new CreateRaceDto({
@@ -151,35 +168,77 @@ export class RaceService implements RaceServiceInterface {
 
     // Add user to race room
     this._socket.addToRoom(newRace._id, user._id);
+
+    return newRace;
   }
 
   // Adds the user to a new or existing race based on their wpm
   async handleRaceJoinRequest(joinRequest: JoinRaceTaskType) {
-    const { userId } = joinRequest;
+    if (joinRequest.entity === "player") {
+      const { userId } = joinRequest;
 
-    // Fetch the user
-    const user = await this._getUserById(userId);
+      // Fetch the user
+      const user = await this._getUserById(userId);
 
-    // Find a suitable race
-    let race = await this._repo.findSuitableRace(user.avgwpm);
+      // Find a suitable race
+      let race = await this._repo.findSuitableRace(user.avgwpm);
 
-    if (race && !race.userIds.includes(user._id)) {
-      await this.joinRace(race, user);
-    } else {
-      // Check if the user already has a race waiting for other players to join
-      const existingOpenRace = await this._repo.findUserEmptyRace(userId);
-      if (existingOpenRace) {
-        const user = await this._getUserById(userId);
-        await this._repo.updateRaceWpm(
-          existingOpenRace._id,
-          user.avgwpm + 20,
-          Math.max(user.avgwpm - 15, 0)
+      if (race && !race.userIds.includes(user._id)) {
+        await this.joinRace(race, {
+          _id: user._id,
+          username: user.username,
+          isBot: false,
+        });
+      } else {
+        // Check if the user already has a race waiting for other players to join
+        const existingOpenRace = await this._repo.findUserEmptyRace(userId);
+        if (existingOpenRace) {
+          const user = await this._getUserById(userId);
+          await this._repo.updateRaceWpm(
+            existingOpenRace._id,
+            user.avgwpm + 20,
+            Math.max(user.avgwpm - 15, 0)
+          );
+          this._socket.addToRoom(existingOpenRace._id, userId);
+          return;
+        }
+        // If no suitable race is found create a new one
+        const race = await this.createNewRace(user, false);
+        setTimeout(
+          () => this.addBotToRace(race._id),
+          this.botsJoinTimeThreshold * 1000
         );
-        this._socket.addToRoom(existingOpenRace._id, userId);
-        return;
       }
-      // If no suitable race is found create a new one
-      await this.createNewRace(user, false);
+    } else {
+      const { raceId, bot } = joinRequest;
+      const race = await this._repo.findById(raceId);
+      if (!race) return;
+      if (race.players.length >= this.maxPlayersPerRace) return;
+      await this.joinRace(race, { ...bot, isBot: true });
+    }
+  }
+
+  // Adds a random number of bots to a race if the race only has one player
+  private async addBotToRace(raceId: RaceInterface["_id"]) {
+    const race = await this._repo.findById(raceId);
+    if (!race) return;
+    if (race.players.length > 1) return;
+    let botCount = randNumBtw(1, this.maxPlayersPerRace - race.players.length);
+
+    while (botCount > 1) {
+      const bot: BotInterface = {
+        username: generateUserName(),
+        _id: "bot_" + generateId(),
+        wpm: Math.round(randNumBtw(race.minWpm, race.maxWpm)),
+      };
+
+      const joinTask: JoinRaceTaskType = {
+        entity: "bot",
+        raceId: race._id,
+        bot,
+      };
+      await this._publishJoinTask(joinTask);
+      botCount--;
     }
   }
 
@@ -315,5 +374,50 @@ export class RaceService implements RaceServiceInterface {
     let wpmTotal = user.avgwpm * user.gamesPlayed;
     const newAvgWpm = (wpmTotal + wpm) / (user.gamesPlayed + 1);
     await this._updateUserStats(user._id, user.gamesPlayed + 1, newAvgWpm);
+  }
+
+  // Gives a bot the next available position in the race
+  async updateBotPosition(data: BotPositionUpdateType) {
+    const { botId, botWpm, raceId } = data;
+    const botLockKey = `botRaceLock:${botId}`;
+    const botLock = await redisClient.set(botLockKey, "lock", {
+      EX: 10,
+      NX: true,
+    });
+    if (!botLock) return;
+    const botKey = `botRacePosition:${botId}`;
+    const alreadySet = await redisClient.get(botKey);
+    if (alreadySet) return;
+
+    const race = await this._repo.findById(raceId);
+    if (!race) return;
+    const endMoment = moment(race.endTime);
+
+    const positionKey = `racePosition:${raceId}`;
+    let [res] = await redisClient
+      .multi()
+      .incr(positionKey)
+      .expireAt(positionKey, endMoment.toDate())
+      .exec();
+
+    const position = Number(res) || 0;
+    await redisClient.set(botKey, position, {
+      EX: endMoment.diff(moment(), "seconds"),
+      NX: true,
+    });
+
+    const progress: PlayerRaceProgressInterface = {
+      accuracy: 100,
+      adjustedWpm: botWpm,
+      correctEntries: race.excerpt.body.length,
+      lastInput: race.excerpt.body,
+      progress: 100,
+      raceId,
+      totalEntries: race.excerpt.body.length,
+      userId: botId,
+      position,
+    };
+
+    this._socket.emitToRoom(race._id, raceEvents.playerUpdate, progress);
   }
 }

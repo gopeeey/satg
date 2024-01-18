@@ -6,4 +6,5 @@ export const raceEvents = {
   leave: "race:leave",
   ongoingRace: "race:ongoing-race",
   practiceData: "race:practice-data",
+  botFinished: "race:bot-finished",
 };

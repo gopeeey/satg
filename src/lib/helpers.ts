@@ -95,7 +95,7 @@ const scaleNumber = (
 };
 
 // Selects a random number between two numbers a and b
-const randNumBtw = (a: number, b: number) => {
+export const randNumBtw = (a: number, b: number) => {
   const rand = Math.random();
   return scaleNumber(rand, 0, 1, a, b);
 };

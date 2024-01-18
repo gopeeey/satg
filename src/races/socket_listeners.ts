@@ -4,7 +4,11 @@ import {
 } from "@races/service/interfaces";
 import { AuthSocket } from "@socket/interfaces";
 import { raceEvents } from "./service/events";
-import { PlayerInputDto, RaceInterface } from "./service/index";
+import {
+  BotPositionUpdateType,
+  PlayerInputDto,
+  RaceInterface,
+} from "./service/index";
 
 // Defines and adds listeners to race events
 export const addListeners = (
@@ -17,6 +21,7 @@ export const addListeners = (
     const joinRequest: JoinRaceTaskType = {
       userId: this.userId,
       practice,
+      entity: "player",
     };
     await service.queueRaceJoinRequest(joinRequest);
   }
@@ -40,7 +45,16 @@ export const addListeners = (
     await service.leaveRace(raceId, this.userId);
   }
 
+  async function botPositionUpdateHandler(
+    this: AuthSocket,
+    data: BotPositionUpdateType
+  ) {
+    if (!this.userId) return;
+    await service.updateBotPosition(data);
+  }
+
   socket.on(raceEvents.join, raceJoinHandler);
   socket.on(raceEvents.playerInput, playerInputHandler);
   socket.on(raceEvents.leave, leaveRaceHandler);
+  socket.on(raceEvents.botFinished, botPositionUpdateHandler);
 };
