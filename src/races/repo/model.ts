@@ -25,7 +25,6 @@ const raceSchema = new mongoose.Schema<RaceInterface>(
     startTime: { type: Date },
     endTime: { type: Date },
     players: { type: [player], default: [] },
-    practice: { type: Boolean, default: false },
     excerpt,
     allowedPlayerIds: { type: [String], default: [] },
   },

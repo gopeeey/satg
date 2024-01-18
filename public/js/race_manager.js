@@ -24,11 +24,16 @@ class RaceManager {
       raceEvents.playerUpdate,
       this.#handleRaceProgressUpdate.bind(this)
     );
+    this.#socket.on(
+      raceEvents.practiceData,
+      this.#handlePracticeData.bind(this)
+    );
   }
 
   #handleNewPlayer({ newPlayer, race, wordLength }) {
     loader.hide();
     if (this.currentRace) {
+      if (this.currentRace.isPractice) return;
       if (race._id !== this.currentRace.data._id) return;
 
       // Add the new player
@@ -39,31 +44,21 @@ class RaceManager {
         this.#backToHomeFn();
       };
 
-      if (race.practice) {
-        this.currentRace = new Practice({
-          user: this.#user,
-          backToHomeFn: leaveFn,
-          socket: this.#socket,
-          raceData: race,
-          wordLength,
-        });
-      } else {
-        this.currentRace = new Race({
-          user: this.#user,
-          backToHomeFn: leaveFn,
-          socket: this.#socket,
-          raceData: race,
-          wordLength,
-          clearRaceFn: this.#clearCurrentRace.bind(this),
-        });
-      }
+      this.currentRace = new Race({
+        user: this.#user,
+        backToHomeFn: leaveFn,
+        socket: this.#socket,
+        raceData: race,
+        wordLength,
+        clearRaceFn: this.#clearCurrentRace.bind(this),
+      });
 
       this.currentRace.render.apply(this.currentRace);
     }
   }
 
   #handleRaceProgressUpdate(progressUpdate) {
-    if (this.currentRace) {
+    if (this.currentRace && !this.currentRace.isPractice) {
       this.currentRace.handlePlayerProgressUpdate(progressUpdate);
     }
   }
@@ -73,6 +68,24 @@ class RaceManager {
     for (const prog of progresses) {
       this.#handleRaceProgressUpdate(prog);
     }
+  }
+
+  #handlePracticeData({ excerpt, avatar }) {
+    if (this.currentRace) return;
+    loader.hide();
+    this.currentRace = new Practice({
+      user: this.#user,
+      excerpt,
+      avatar,
+      backToHomeFn: () => {
+        this.currentRace = null;
+        this.#backToHomeFn();
+      },
+      clearRaceFn: this.#clearCurrentRace.bind(this),
+      socket: this.#socket,
+    });
+
+    this.currentRace.render.apply(this.currentRace);
   }
 
   #handleSession({ user, ongoingRace }) {

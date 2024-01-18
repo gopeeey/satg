@@ -29,7 +29,6 @@ export class RaceRepo implements RaceRepoInterface {
   async findSuitableRace(wpm: number) {
     const race = await DbRace.findOne({
       closed: false,
-      practice: false,
       minWpm: { $lte: wpm },
       maxWpm: { $gte: wpm },
       $or: [

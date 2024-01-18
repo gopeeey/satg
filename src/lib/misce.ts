@@ -29,10 +29,10 @@ export const excerpts: ExcerptType[] = [
   //   body: "He was unheeded, happy, and near to the wild heart of life. He was alone and young and wilful and wildhearted, alone amid a waste of wild air and brackish waters and the seaharvest of shells and tangle and veiled grey sunlight.",
   // },
 
-  // {
-  //   author: "Albert Einstein",
-  //   body: "Our task must be to free ourselves... by widening our circle of compassion to embrace all living creatures and the whole of nature and it's beauty.",
-  // },
+  {
+    author: "Albert Einstein",
+    body: "Our task must be to free ourselves... by widening our circle of compassion to embrace all living creatures and the whole of nature and it's beauty.",
+  },
 
   // {
   //   title: "Great Expectations",
@@ -72,9 +72,9 @@ export const excerpts: ExcerptType[] = [
   //   year: 2008,
   // },
 
-  {
-    title: "Just a test text",
-    author: "Dev",
-    body: "Testing",
-  },
+  // {
+  //   title: "Just a test text",
+  //   author: "Dev",
+  //   body: "Testing",
+  // },
 ];

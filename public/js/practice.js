@@ -1,38 +1,58 @@
+import { raceEvents } from "./events.js";
 import { scaleNumber } from "./helpers.js";
+import loader from "./loader.js";
 
 const textInputId = "thisisthetextinputid";
 const textRootId = "thisisthetextrootid";
 const untypedTextId = "untypedText";
 
 class Practice {
-  #data;
+  isPractice = true;
   #user;
   #backToHomeFn;
   #socket;
-  #correctText = "";
   #typedText = "";
-  #wrongTypedText = "";
   #typingTimeout = null;
+  #done = false;
+  #countDownTimeout = null;
+  #clearRaceFn;
+  #startTime = new Date(new Date().getTime() + 10000);
+  #excerpt = "";
+  #avatar = "";
+  #progress = 0;
+  #accuracy = 100;
+  #wpm = 0;
+  #correctEntries = 0;
+  #totalEntries = 0;
+  #wordLength = 5;
 
-  constructor({ user, raceData, backToHomeFn, socket }) {
-    this.#data = raceData;
+  constructor({ user, excerpt, avatar, backToHomeFn, socket, clearRaceFn }) {
+    this.#excerpt = excerpt;
+    this.#avatar = avatar;
     this.#user = user;
-    this.#backToHomeFn = backToHomeFn;
     this.#socket = socket;
+    this.#backToHomeFn = () => {
+      if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+      clearRaceFn();
+      backToHomeFn();
+    };
+    this.#clearRaceFn = clearRaceFn;
   }
 
   render() {
     const root = document.getElementById("main");
     if (!root) return;
 
-    const raceData = this.#data;
+    if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+
+    const startTime = this.#startTime;
 
     const eventElements = {
       leaveRace: {
-        _id: `leave_${this.#data._id}`,
-        events: [{ event: "onclick", handler: () => this.#backToHomeFn() }],
+        _id: `leave_practice`,
+        events: [{ event: "onclick", handler: this.#backToHomeFn }],
         get element() {
-          return `<span class="button leaveButton" id="${this._id}">Leave practice</span>`;
+          return `<span class="button leaveButton" id="${this._id}">Back to home</span>`;
         },
       },
 
@@ -60,9 +80,7 @@ class Practice {
             const el = document.getElementById(this._id);
             if (!el) return;
             el.addEventListener("keydown", (e) => {
-              if (
-                new Date().getTime() < new Date(raceData.startTime).getTime()
-              ) {
+              if (new Date().getTime() < startTime.getTime()) {
                 return e.preventDefault();
               }
               switch (e.key) {
@@ -82,22 +100,25 @@ class Practice {
 
     root.innerHTML = `
           <div id="race">
-              <div class="section topTaskBar">
-                ${eventElements.leaveRace.element}
+              <div class="section topTaskBar" >
+                <span id="countDown">Starts in</span>
+
+                <div class="actions" id="gameActions">${
+                  eventElements.leaveRace.element
+                }
+                </div>
+                
               </div>
 
               <div class="section trackRoot">
-              ${this.#data.players
-                .map(
-                  (player) =>
-                    `
-                    <div class="track" id="track_${player.userId}">
-                        <span class="wpm"><span id="wpm_${player.userId}">0</span> <span class="label">WPM</span></span>
-                        <img src="/public/images/${player.avatar}" alt="car" class="car" id="${player.userId}" />
-                    </div>
-                    `
-                )
-                .join("")}
+                <div class="track" id="track_${this.#user.data._id}">
+                        <span class="wpm"><span id="wpm_${
+                          this.#user.data._id
+                        }">0</span> <span class="label">WPM</span></span>
+                        <span class="car" id="${this.#user.data._id}">
+                          <img src="/public/images/${this.#avatar}" alt="car"/>
+                        </span>
+                </div>
               </div>
 
               <div class="section textRoot">
@@ -112,15 +133,15 @@ class Practice {
                       </span>
 
                       <span class="untyped typing" id="${untypedTextId}">
-                        ${this.#data.excerpt.body}
+                        ${this.#excerpt.body}
                       </span>
                       
                   </div>
 
                   <div class="excerptInfo">
-                    - ${this.#data.excerpt.author}${
-      this.#data.excerpt.title ? `, ${this.#data.excerpt.title}` : ``
-    }${this.#data.excerpt.year ? `. ${this.#data.excerpt.year}.` : `.`}
+                    - ${this.#excerpt.author}${
+      this.#excerpt.title ? `, ${this.#excerpt.title}` : ``
+    }${this.#excerpt.year ? `. ${this.#excerpt.year}.` : `.`}
                   </div>
 
                   ${eventElements.autoFocus.element}
@@ -142,70 +163,151 @@ class Practice {
 
       if (typeof obj.load === "function") obj.load();
     }
+
+    this.startCountDown();
   }
 
-  handleTextChange = (newText) => {
-    let correct = "";
-    let wrong = "";
-    let actualWrong = "";
-    const raceText = this.#data.excerpt.body;
+  showSummary({ accuracy, wpm, finishedTimeStamp }) {
+    const el = document.getElementById("race");
+    if (!el) return;
+    const diff =
+      (finishedTimeStamp.getTime() - new Date(this.#startTime).getTime()) /
+      1000;
 
-    if (this.#correctText.length > newText.length) {
-      newText = this.#correctText;
-      const inputEl = document.getElementById(textInputId);
-      if (inputEl) inputEl.value = newText;
-    }
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <div class="summaryTitle">Race summary</div>
+      ${[
+        { name: "WPM", value: wpm + " WPM" },
+        { name: "Accuracy", value: Math.floor(accuracy) + "%" },
+        { name: "Time", value: this.#secondsToDurationStr(diff) },
+      ]
+        .map(
+          (field) => `
+          <p className="field">
+            <span class="fieldName">${field.name}:</span>
+            <span class="fieldValue"> ${field.value}</span>
+          </p>`
+        )
+        .join(" ")}
+    `;
+    div.classList.add("summary");
 
-    if (this.#correctText.length === this.#data.excerpt.body.length) {
-      const inputEl = document.getElementById(textInputId);
-      if (inputEl) inputEl.value = this.#correctText;
-      return;
-    }
+    el.appendChild(div);
+  }
 
-    for (let i = 0; i < newText.length; i++) {
-      if (raceText[i] === newText[i]) {
-        if (wrong.length) {
-          wrong += raceText[i] || "";
-          continue;
-        }
-        correct += raceText[i] || "";
+  startCountDown = () => {
+    this.#countDownTimeout = setInterval(() => {
+      const now = new Date();
+      const startTime = new Date(this.#startTime);
+      const diff = startTime.getTime() - now.getTime();
+      const seconds = Math.ceil(diff / 1000);
+      const el = document.getElementById("countDown");
+
+      if (!el) return;
+      if (seconds > -3) {
+        el.innerHTML = seconds > 0 ? seconds : "GO!";
+        if (seconds <= 0) el.classList.add("go");
       } else {
-        wrong += raceText[i] || "";
-        actualWrong += raceText[i] || "";
+        el.classList.remove("go");
+
+        if (this.#done) {
+          if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+          this.#countDownTimeout = null;
+          el.innerHTML = "Finished!";
+        } else {
+          const diff = (now.getTime() - startTime.getTime()) / 1000;
+          el.innerHTML = this.#secondsToDurationStr(diff);
+        }
+      }
+    }, 1000);
+  };
+
+  updateGameActionsOnEnd = () => {
+    const container = document.getElementById("gameActions");
+    if (!container) return;
+    const eventElements = {
+      leaveRace: {
+        _id: `leave_practice`,
+        events: [{ event: "onclick", handler: this.#backToHomeFn }],
+        get element() {
+          return `<span class="button button-outlined" id="${this._id}">Back to home</span>`;
+        },
+      },
+
+      raceAgain: {
+        _id: `raceAgain`,
+        events: [
+          {
+            event: "onclick",
+            handler: () => {
+              if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+              this.#countDownTimeout = null;
+              this.#clearRaceFn();
+              loader.show();
+              this.#socket.emit(raceEvents.joinRace, true);
+            },
+          },
+        ],
+        get element() {
+          return `<span class="button" id="${this._id}">Practice again</span>`;
+        },
+      },
+    };
+
+    container.innerHTML = `
+      ${eventElements.leaveRace.element}
+      ${eventElements.raceAgain.element}
+    `;
+
+    for (const key in eventElements) {
+      const obj = eventElements[key];
+      const el = document.getElementById(obj._id);
+      if (!el) continue;
+      for (const ev of obj.events) {
+        if (typeof ev.handler === "function")
+          el[ev.event] = (e) => ev.handler(e);
       }
     }
+  };
 
-    if (correct.length > this.#correctText.length) this.#correctText = correct;
+  setInputText = (newText) => {
+    let inputEl = document.getElementById(textInputId);
+    if (inputEl) inputEl.value = newText;
+  };
 
+  handleTextChange = (newText) => {
+    const raceText = this.#excerpt.body;
+    if (this.#done || newText.length > raceText.length) return;
+    let correctText = "";
+    let wrongText = "";
+    let untypedText = raceText.slice(newText.length, raceText.length);
+    let errorCount = 0;
+
+    if (raceText.startsWith(newText)) {
+      correctText = newText;
+      if (raceText === newText) {
+        // Prevent further updates if the player has reached the end of the excerpt
+        this.setInputText("");
+      }
+    } else {
+      for (let i = 0; i < newText.length; i++) {
+        if (raceText[i] === newText[i]) {
+          correctText += newText[i];
+        } else {
+          break;
+        }
+      }
+      wrongText = raceText.slice(correctText.length, newText.length);
+      errorCount = wrongText.length;
+    }
+
+    // Update typing progress on the screen
     const el = document.getElementById(textRootId);
     if (!el) return;
     el.innerHTML = `
-        <span class="correct">${correct}</span><span class="wrong">${wrong}</span><span id="${untypedTextId}" class="untyped typing">${raceText.slice(
-      correct.length + wrong.length,
-      raceText.length
-    )}</span>
+        <span class="correct">${correctText}</span><span class="wrong">${wrongText}</span><span id="${untypedTextId}" class="untyped typing">${untypedText}</span>
     `;
-    // Update car progress
-    const progressPercentage =
-      (this.#correctText.length / this.#data.excerpt.body.length) * 100;
-
-    const car = document.getElementById(this.#user.data._id);
-    if (!car) return;
-    const track = document.getElementById(`track_${this.#user.data._id}`);
-    if (!track) return;
-
-    const trackLength = track.offsetWidth;
-    const actualTrackLength = trackLength - 2 * car.offsetWidth;
-    const actualTrackPercent = (actualTrackLength / trackLength) * 100;
-    const actualPosition = scaleNumber(
-      progressPercentage,
-      0,
-      100,
-      0,
-      actualTrackPercent
-    );
-
-    car.style.left = `${actualPosition}%`;
 
     // Animate typing cursor
     if (this.#typingTimeout) clearTimeout(this.#typingTimeout);
@@ -216,26 +318,79 @@ class Practice {
       untypedEl.classList.add("typing");
     }, 1000);
 
-    this.#typedText = newText;
-    this.#wrongTypedText = actualWrong;
-    this.calculateWpm();
-  };
+    if (errorCount > 5) {
+      return this.setInputText(this.#typedText);
+    }
 
-  calculateWpm = () => {
-    const minutes =
-      (new Date().getTime() - new Date(this.#data.startTime).getTime()) / 60000;
-
-    const wpm = Math.round(
-      (this.#typedText.length / 5 - this.#wrongTypedText.length) / minutes
+    // Calculate total entries and correct entries
+    const match = newText.match(
+      this.#typedText.replace(/[/\-\\^$*+?.()|[\]{}]/g, "\\$&")
     );
-    this.updateWpm({ playerId: this.#user.data._id, wpm });
+    if (match) {
+      const newCharsStart = this.#typedText.length;
+      const newChars = newText.slice(newCharsStart, newText.length);
+      this.#totalEntries += newChars.length;
+      let newCorrectChars = correctText.slice(newCharsStart, newText.length);
+      this.#correctEntries += newCorrectChars.length;
+    }
+    this.#typedText = newText;
+
+    // Calculate accuracy
+    this.#accuracy = (this.#correctEntries / this.#totalEntries) * 100;
+
+    // Calculate the player's wpm and adjustedWpm
+    const minutes = (new Date().getTime() - this.#startTime.getTime()) / 60000;
+    const wpm = newText.length / this.#wordLength / minutes;
+    this.#wpm = Math.round(wpm * (this.#accuracy / 100));
+    this.updateWpm(this.#wpm);
+
+    // Calculate the player's progress percentage
+    this.#progress = Math.max(
+      this.#progress,
+      (correctText.length / this.#excerpt.body.length) * 100
+    );
+    this.updatePlayerProgress(this.#progress);
+
+    this.#done = raceText === newText;
+
+    if (this.#done) {
+      this.updateGameActionsOnEnd();
+      this.showSummary({
+        accuracy: this.#accuracy,
+        wpm: this.#wpm,
+        finishedTimeStamp: new Date(),
+      });
+    }
   };
 
-  updateWpm = ({ playerId, wpm }) => {
-    const el = document.getElementById(`wpm_${playerId}`);
+  updateWpm = (wpm) => {
+    const el = document.getElementById(`wpm_${this.#user.data._id}`);
     if (!el) return;
     el.innerHTML = wpm;
   };
+
+  // Updates the player's car progress on screen
+  updatePlayerProgress = (progress) => {
+    const car = document.getElementById(this.#user.data._id);
+    if (!car) return;
+    const track = document.getElementById(`track_${this.#user.data._id}`);
+    if (!track) return;
+
+    const trackLength = track.offsetWidth;
+    const actualTrackLength = trackLength - 2 * car.offsetWidth;
+    const actualTrackPercent = (actualTrackLength / trackLength) * 100;
+    const actualPosition = scaleNumber(progress, 0, 100, 0, actualTrackPercent);
+
+    car.style.left = `${actualPosition}%`;
+  };
+
+  #secondsToDurationStr(secs) {
+    let minutes = Math.floor(secs / 60).toString();
+    let seconds = Math.floor(secs % 60).toString();
+    if (minutes.length < 2) minutes = "0" + minutes;
+    if (seconds.length < 2) seconds = "0" + seconds;
+    return `${minutes}:${seconds}`;
+  }
 }
 
 export default Practice;

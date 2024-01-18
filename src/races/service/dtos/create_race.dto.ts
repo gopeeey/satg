@@ -6,7 +6,6 @@ type PropType = {
   userId: RaceInterface["userIds"][number];
   username: string;
   avatar: string;
-  practice: RaceInterface["practice"];
   excerpt: RaceInterface["excerpt"];
   closed?: RaceInterface["closed"];
   startTime?: RaceInterface["startTime"];
@@ -18,7 +17,6 @@ export class CreateRaceDto {
   userId: PropType["userId"];
   username: string;
   avatar: string;
-  practice: PropType["practice"];
   excerpt: PropType["excerpt"];
   closed?: PropType["closed"];
   startTime?: PropType["startTime"];
@@ -29,7 +27,6 @@ export class CreateRaceDto {
     this.userId = body.userId;
     this.username = body.username;
     this.avatar = body.avatar;
-    this.practice = body.practice;
     this.closed = body.closed;
     this.excerpt = body.excerpt;
     this.startTime = body.startTime;

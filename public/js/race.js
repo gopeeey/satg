@@ -406,14 +406,14 @@ class Race {
   };
 
   handlePlayerProgressUpdate = (progressUpdate) => {
-    const { userId, adjustedAvgWpm, progress, lastInput, position, accuracy } =
+    const { userId, adjustedWpm, progress, lastInput, position, accuracy } =
       progressUpdate;
 
     // Update player's car progress on screen
     this.updatePlayerProgress({ playerId: userId, progress, position });
 
     // Update the player's stats
-    this.updateWpm({ playerId: userId, wpm: adjustedAvgWpm });
+    this.updateWpm({ playerId: userId, wpm: adjustedWpm });
 
     // In the case of a reload/reconnection, update player's text progress
     if (userId === this.#user.data._id && lastInput !== this.#typedText) {
@@ -428,7 +428,7 @@ class Race {
       this.showSummary({
         accuracy,
         position,
-        wpm: adjustedAvgWpm,
+        wpm: adjustedWpm,
         finishedTimeStamp: new Date(),
       });
     }

@@ -24,7 +24,6 @@ export interface RaceInterface {
   startTime?: Date;
   endTime?: Date;
   players: PlayerInterface[];
-  practice: boolean;
   excerpt: ExcerptType;
   allowedPlayerIds: PlayerInterface["userId"][];
 }
@@ -41,7 +40,7 @@ export interface TaskQueueInterface<M> {
 
 export type JoinRaceTaskType = {
   userId: UserInterface["_id"];
-  practice: RaceInterface["practice"];
+  practice: boolean;
 };
 export interface JoinRaceTaskQueueInterface
   extends TaskQueueInterface<JoinRaceTaskType> {}
@@ -81,7 +80,7 @@ export interface RaceServiceDependencies {
 export interface PlayerRaceProgressInterface {
   userId: UserInterface["_id"];
   raceId: RaceInterface["_id"];
-  adjustedAvgWpm: number;
+  adjustedWpm: number;
   progress: number;
   correctEntries: number;
   totalEntries: number;

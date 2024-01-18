@@ -51,6 +51,13 @@ export class RaceService implements RaceServiceInterface {
         );
         return;
       }
+    } else {
+      // Just emit a practice excerpt and avatar
+      return this._socket.emitToRoom(
+        joinRequest.userId,
+        raceEvents.practiceData,
+        { excerpt: generateExcerpt(), avatar: generateAvatar([]) }
+      );
     }
     // Publish the join request to the race join queue
     await this._publishJoinTask(joinRequest);
@@ -137,54 +144,18 @@ export class RaceService implements RaceServiceInterface {
         userId: user._id,
         username: user.username,
         avatar: generateAvatar([]),
-        practice,
-        closed: practice,
+        closed: false,
         excerpt: generateExcerpt(),
-        startTime: practice
-          ? moment().add(this.startCountDownDuration, "seconds").toDate()
-          : undefined,
       })
     );
 
     // Add user to race room
     this._socket.addToRoom(newRace._id, user._id);
-
-    // If it is a practice session, persist the race in redis
-    // and notify the user of the race immediately
-    if (practice) {
-      // Update race on redis
-      const nowMoment = moment();
-      await redisClient.setEx(
-        `race:${newRace._id}`,
-        moment(newRace.startTime).diff(nowMoment, "seconds") +
-          this.maxRaceDuration,
-        JSON.stringify(newRace)
-      );
-
-      // Create player progress
-      const playerProgress = new PlayerProgressDto({
-        userId: user._id,
-        raceId: newRace._id,
-      });
-      await redisClient.setEx(
-        this.makePlayerProgressId(newRace._id, user._id),
-        moment(newRace.startTime).diff(nowMoment, "seconds") +
-          this.maxRaceDuration,
-        JSON.stringify(playerProgress)
-      );
-
-      const data = {
-        newPlayer: newRace.players[0],
-        race: newRace,
-        wordLength: this.wordLength,
-      };
-      this._socket.emitToRoom(newRace._id, raceEvents.newPlayer, data);
-    }
   }
 
   // Adds the user to a new or existing race based on their wpm
   async handleRaceJoinRequest(joinRequest: JoinRaceTaskType) {
-    const { userId, practice } = joinRequest;
+    const { userId } = joinRequest;
 
     // Fetch the user
     const user = await this._getUserById(userId);
@@ -192,25 +163,23 @@ export class RaceService implements RaceServiceInterface {
     // Find a suitable race
     let race = await this._repo.findSuitableRace(user.avgwpm);
 
-    if (race) {
+    if (race && !race.userIds.includes(user._id)) {
       await this.joinRace(race, user);
     } else {
-      if (!practice) {
-        // Check if the user already has a non practice race waiting for other players to join
-        const existingOpenRace = await this._repo.findUserEmptyRace(userId);
-        if (existingOpenRace) {
-          const user = await this._getUserById(userId);
-          await this._repo.updateRaceWpm(
-            existingOpenRace._id,
-            user.avgwpm + 20,
-            Math.max(user.avgwpm - 15, 0)
-          );
-          this._socket.addToRoom(existingOpenRace._id, userId);
-          return;
-        }
+      // Check if the user already has a race waiting for other players to join
+      const existingOpenRace = await this._repo.findUserEmptyRace(userId);
+      if (existingOpenRace) {
+        const user = await this._getUserById(userId);
+        await this._repo.updateRaceWpm(
+          existingOpenRace._id,
+          user.avgwpm + 20,
+          Math.max(user.avgwpm - 15, 0)
+        );
+        this._socket.addToRoom(existingOpenRace._id, userId);
+        return;
       }
       // If no suitable race is found create a new one
-      await this.createNewRace(user, practice);
+      await this.createNewRace(user, false);
     }
   }
 
@@ -283,11 +252,11 @@ export class RaceService implements RaceServiceInterface {
       (correctTypedText.length / race.excerpt.body.length) * 100
     );
 
-    // Calculate the player's avgWpm and adjustedAvgWpm
+    // Calculate the player's wpm and adjustedWpm
     const raceStartMoment = moment(race.startTime);
     const minutes = moment().diff(raceStartMoment, "milliseconds") / 60000;
     const wpm = inputText.length / this.wordLength / minutes;
-    playerProgress.adjustedAvgWpm = Math.round(
+    playerProgress.adjustedWpm = Math.round(
       wpm * (playerProgress.accuracy / 100)
     );
 
@@ -304,7 +273,7 @@ export class RaceService implements RaceServiceInterface {
       await this.leaveRace(race._id, userId);
 
       // Update their stats
-      await this.updateUserStats(userId, playerProgress.adjustedAvgWpm);
+      await this.updateUserStats(userId, playerProgress.adjustedWpm);
     }
 
     // Update player's race progress object on redis

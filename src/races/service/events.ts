@@ -5,4 +5,5 @@ export const raceEvents = {
   playerUpdate: "race:player-update",
   leave: "race:leave",
   ongoingRace: "race:ongoing-race",
+  practiceData: "race:practice-data",
 };
