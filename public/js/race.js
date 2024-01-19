@@ -19,7 +19,6 @@ class Race {
   #clockInterval = null;
   #clearRaceFn;
   endPlayerIds = [];
-  #botsMoveCount = 0;
   #botsMoveInterval = null;
   #wordLength = 5;
 
@@ -37,6 +36,7 @@ class Race {
     this.#backToHomeFn = () => {
       socket.emit(raceEvents.leaveRace, this.data._id);
       this.#stopClock();
+      this.#stopBots();
       clearRaceFn();
       backToHomeFn();
     };
@@ -266,7 +266,7 @@ class Race {
   };
 
   #startBots = () => {
-    const interval = 200;
+    const interval = 110;
     this.#botsMoveInterval = setInterval(() => {
       const now = new Date();
       const startTime = new Date(this.data.startTime);
@@ -275,48 +275,43 @@ class Race {
       if (diff < interval) return;
       if (endTime.getTime() <= now.getTime()) return this.#stopBots();
 
-      this.#botsMoveCount++;
-
       for (let j = 0; j < this.data.players.length; j++) {
         if (!this.data.players[j].isBot || !this.data.players[j].wpm) continue;
         const bot = this.data.players[j];
         if (this.endPlayerIds.includes(bot.userId)) continue;
 
-        const randNum = scaleNumber(Math.random(), 0, 1, -5, 5);
-        const currentWpm = Math.max(0, bot.wpm + randNum);
-        const avgWpm =
-          (bot.wpm * this.#botsMoveCount + currentWpm) /
-          (this.#botsMoveCount + 1);
+        const expectedTotalWords =
+          this.data.excerpt.body.length / this.#wordLength;
+        const seconds = Math.floor(diff / 1000);
+        const botWordsPerSec = bot.wpm / 60;
+        let totalWords =
+          (-0.5 * botWordsPerSec * Math.cos(2 * Math.PI * seconds)) /
+            (2 * Math.PI) +
+          botWordsPerSec * seconds;
 
-        if (currentWpm > 0) {
-          const minutes = (this.#botsMoveCount === 1 ? diff : interval) / 60000;
-          const expectedTotalWords =
-            this.data.excerpt.body.length / this.#wordLength;
-          let totalWords = (bot.totalWords || 0) + currentWpm * minutes;
-          if (totalWords > expectedTotalWords) totalWords = expectedTotalWords;
-          this.data.players[j].totalWords = totalWords;
-          const progress = Math.floor((totalWords / expectedTotalWords) * 100);
-          if (progress > 0) {
-            if (progress === 100) {
-              this.#socket.emit(raceEvents.botFinished, {
-                botId: bot.userId,
-                raceId: this.data._id,
-                botWpm: avgWpm,
-              });
-            } else {
-              const progressUpdate = {
-                userId: bot.userId,
-                adjustedWpm: avgWpm,
-                progress,
-                lastInput: this.data.excerpt.body.slice(
-                  0,
-                  Math.floor(totalWords * this.#wordLength)
-                ),
-                position: 0,
-                accuracy: 100,
-              };
-              this.handlePlayerProgressUpdate(progressUpdate);
-            }
+        const avgWpm = Math.floor(totalWords / (seconds / 60));
+        if (totalWords > expectedTotalWords) totalWords = expectedTotalWords;
+        const progress = Math.floor((totalWords / expectedTotalWords) * 100);
+        if (progress > 0) {
+          if (progress === 100) {
+            this.#socket.emit(raceEvents.botFinished, {
+              botId: bot.userId,
+              raceId: this.data._id,
+              botWpm: avgWpm,
+            });
+          } else {
+            const progressUpdate = {
+              userId: bot.userId,
+              adjustedWpm: avgWpm,
+              progress,
+              lastInput: this.data.excerpt.body.slice(
+                0,
+                Math.floor(totalWords * this.#wordLength)
+              ),
+              position: 0,
+              accuracy: 100,
+            };
+            this.handlePlayerProgressUpdate(progressUpdate);
           }
         }
       }
@@ -515,6 +510,7 @@ class Race {
 
   handleNewPlayer = (newPlayer) => {
     this.data.players.push(newPlayer);
+    this.data.userIds = [...new Set([...this.data.userIds, newPlayer.userId])];
     this.render();
   };
 

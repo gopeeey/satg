@@ -36,7 +36,7 @@ export class RaceService implements RaceServiceInterface {
   readonly startCountDownDuration = 10; // seconds
   readonly maxRaceDuration = 10 * 60; // seconds
   readonly wordLength = 5; // characters
-  readonly botsJoinTimeThreshold = 10; // seconds
+  readonly botsJoinTimeThreshold = 5; // seconds
 
   constructor(deps: RaceServiceDependencies) {
     this._repo = deps.repo;
