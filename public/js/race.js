@@ -16,21 +16,32 @@ class Race {
   #typingTimeout = null;
   #errorCount = 0;
   #done = false;
-  #countDownTimeout = null;
+  #clockInterval = null;
   #clearRaceFn;
   endPlayerIds = [];
+  #botsMoveCount = 0;
+  #botsMoveInterval = null;
+  #wordLength = 5;
 
-  constructor({ user, raceData, backToHomeFn, socket, clearRaceFn }) {
+  constructor({
+    user,
+    raceData,
+    backToHomeFn,
+    socket,
+    clearRaceFn,
+    wordLength,
+  }) {
     this.data = raceData;
     this.#user = user;
     this.#socket = socket;
     this.#backToHomeFn = () => {
       socket.emit(raceEvents.leaveRace, this.data._id);
-      if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+      this.#stopClock();
       clearRaceFn();
       backToHomeFn();
     };
     this.#clearRaceFn = clearRaceFn;
+    this.#wordLength = wordLength || 5;
   }
 
   render() {
@@ -38,7 +49,8 @@ class Race {
     if (!root) return;
 
     const raceData = this.data;
-    if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
+    this.#stopClock();
+    this.#stopBots();
 
     const eventElements = {
       leaveRace: {
@@ -185,7 +197,8 @@ class Race {
       if (typeof obj.load === "function") obj.load();
     }
 
-    this.startCountDown();
+    this.#startClock();
+    this.#startBots();
   }
 
   showSummary({ position, accuracy, wpm, finishedTimeStamp }) {
@@ -218,8 +231,8 @@ class Race {
     el.appendChild(div);
   }
 
-  startCountDown = () => {
-    this.#countDownTimeout = setInterval(() => {
+  #startClock = () => {
+    this.#clockInterval = setInterval(() => {
       const now = new Date();
       const startTime = new Date(this.data.startTime);
       const diff = startTime.getTime() - now.getTime();
@@ -235,8 +248,7 @@ class Race {
         el.classList.remove("go");
 
         if (endTime.getTime() <= now.getTime()) {
-          clearInterval(this.#countDownTimeout);
-          this.#countDownTimeout = null;
+          this.#stopClock();
           el.innerHTML = "Race ended";
           el.classList.add("ended");
         } else {
@@ -246,6 +258,74 @@ class Race {
         }
       }
     }, 1000);
+  };
+
+  #stopClock = () => {
+    if (this.#clockInterval) clearInterval(this.#clockInterval);
+    this.#clockInterval = null;
+  };
+
+  #startBots = () => {
+    const interval = 200;
+    this.#botsMoveInterval = setInterval(() => {
+      const now = new Date();
+      const startTime = new Date(this.data.startTime);
+      const endTime = new Date(this.data.endTime);
+      const diff = now.getTime() - startTime.getTime();
+      if (diff < interval) return;
+      if (endTime.getTime() <= now.getTime()) return this.#stopBots();
+
+      this.#botsMoveCount++;
+
+      for (let j = 0; j < this.data.players.length; j++) {
+        if (!this.data.players[j].isBot || !this.data.players[j].wpm) continue;
+        const bot = this.data.players[j];
+        if (this.endPlayerIds.includes(bot.userId)) continue;
+
+        const randNum = scaleNumber(Math.random(), 0, 1, -5, 5);
+        const currentWpm = Math.max(0, bot.wpm + randNum);
+        const avgWpm =
+          (bot.wpm * this.#botsMoveCount + currentWpm) /
+          (this.#botsMoveCount + 1);
+
+        if (currentWpm > 0) {
+          const minutes = (this.#botsMoveCount === 1 ? diff : interval) / 60000;
+          const expectedTotalWords =
+            this.data.excerpt.body.length / this.#wordLength;
+          let totalWords = (bot.totalWords || 0) + currentWpm * minutes;
+          if (totalWords > expectedTotalWords) totalWords = expectedTotalWords;
+          this.data.players[j].totalWords = totalWords;
+          const progress = Math.floor((totalWords / expectedTotalWords) * 100);
+          if (progress > 0) {
+            if (progress === 100) {
+              this.#socket.emit(raceEvents.botFinished, {
+                botId: bot.userId,
+                raceId: this.data._id,
+                botWpm: avgWpm,
+              });
+            } else {
+              const progressUpdate = {
+                userId: bot.userId,
+                adjustedWpm: avgWpm,
+                progress,
+                lastInput: this.data.excerpt.body.slice(
+                  0,
+                  Math.floor(totalWords * this.#wordLength)
+                ),
+                position: 0,
+                accuracy: 100,
+              };
+              this.handlePlayerProgressUpdate(progressUpdate);
+            }
+          }
+        }
+      }
+    }, interval);
+  };
+
+  #stopBots = () => {
+    if (this.#botsMoveInterval) clearInterval(this.#botsMoveInterval);
+    this.#botsMoveInterval = null;
   };
 
   updateGameActionsOnEnd = () => {
@@ -266,8 +346,7 @@ class Race {
           {
             event: "onclick",
             handler: () => {
-              if (this.#countDownTimeout) clearInterval(this.#countDownTimeout);
-              this.#countDownTimeout = null;
+              this.#stopClock();
               this.#clearRaceFn();
               loader.show();
               this.#socket.emit(raceEvents.joinRace, this.data.practice);
@@ -398,7 +477,7 @@ class Race {
       let posStr = this.#positionifyNum(position);
       posEl.innerHTML = posStr;
 
-      this.endPlayerIds.push(playerId);
+      this.endPlayerIds = [...new Set([...this.endPlayerIds, playerId])];
       if (this.endPlayerIds.length >= this.data.userIds.length) {
         this.data.endTime = new Date().toISOString();
       }

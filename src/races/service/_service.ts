@@ -379,45 +379,60 @@ export class RaceService implements RaceServiceInterface {
   // Gives a bot the next available position in the race
   async updateBotPosition(data: BotPositionUpdateType) {
     const { botId, botWpm, raceId } = data;
+
+    // Since multiple clients are pushing the bots, only one of them should
+    // be allowed to get a position at a time
     const botLockKey = `botRaceLock:${botId}`;
     const botLock = await redisClient.set(botLockKey, "lock", {
       EX: 10,
       NX: true,
     });
     if (!botLock) return;
-    const botKey = `botRacePosition:${botId}`;
-    const alreadySet = await redisClient.get(botKey);
-    if (alreadySet) return;
 
-    const race = await this._repo.findById(raceId);
-    if (!race) return;
-    const endMoment = moment(race.endTime);
+    try {
+      const botKey = `botRacePosition:${botId}`;
+      let position = 0;
+      const positionRes = await redisClient.get(botKey);
+      if (positionRes) position = Number(positionRes) || 0;
 
-    const positionKey = `racePosition:${raceId}`;
-    let [res] = await redisClient
-      .multi()
-      .incr(positionKey)
-      .expireAt(positionKey, endMoment.toDate())
-      .exec();
+      const race = await this._repo.findById(raceId);
+      if (!race) throw new Error();
 
-    const position = Number(res) || 0;
-    await redisClient.set(botKey, position, {
-      EX: endMoment.diff(moment(), "seconds"),
-      NX: true,
-    });
+      if (!position) {
+        const endMoment = moment(race.endTime);
 
-    const progress: PlayerRaceProgressInterface = {
-      accuracy: 100,
-      adjustedWpm: botWpm,
-      correctEntries: race.excerpt.body.length,
-      lastInput: race.excerpt.body,
-      progress: 100,
-      raceId,
-      totalEntries: race.excerpt.body.length,
-      userId: botId,
-      position,
-    };
+        const positionKey = `racePosition:${raceId}`;
+        let [res] = await redisClient
+          .multi()
+          .incr(positionKey)
+          .expireAt(positionKey, endMoment.toDate())
+          .exec();
 
-    this._socket.emitToRoom(race._id, raceEvents.playerUpdate, progress);
+        position = Number(res) || 0;
+
+        // Cache the position for this bot till the end of the race
+        await redisClient.set(botKey, position.toString(), {
+          EX: endMoment.diff(moment(), "seconds"),
+          NX: true,
+        });
+      }
+
+      const progress: PlayerRaceProgressInterface = {
+        accuracy: 100,
+        adjustedWpm: botWpm,
+        correctEntries: race.excerpt.body.length,
+        lastInput: race.excerpt.body,
+        progress: 100,
+        raceId,
+        totalEntries: race.excerpt.body.length,
+        userId: botId,
+        position,
+      };
+
+      this._socket.emitToRoom(race._id, raceEvents.playerUpdate, progress);
+      await redisClient.del(botLockKey);
+    } catch (err) {
+      await redisClient.del(botLockKey);
+    }
   }
 }
