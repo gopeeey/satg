@@ -97,7 +97,7 @@ export interface RaceServiceDependencies {
 export interface PlayerRaceProgressInterface {
   userId: UserInterface["_id"];
   raceId: RaceInterface["_id"];
-  adjustedWpm: number;
+  wpm: number;
   progress: number;
   correctEntries: number;
   totalEntries: number;

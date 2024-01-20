@@ -266,7 +266,7 @@ class Race {
   };
 
   #startBots = () => {
-    const interval = 110;
+    const interval = 210;
     this.#botsMoveInterval = setInterval(() => {
       const now = new Date();
       const startTime = new Date(this.data.startTime);
@@ -282,14 +282,13 @@ class Race {
 
         const expectedTotalWords =
           this.data.excerpt.body.length / this.#wordLength;
-        const seconds = Math.floor(diff / 1000);
-        const botWordsPerSec = bot.wpm / 60;
+        const botWordsPerMilliSec = bot.wpm / 60000;
         let totalWords =
-          (-0.5 * botWordsPerSec * Math.cos(2 * Math.PI * seconds)) /
+          (-0.5 * botWordsPerMilliSec * Math.cos(2 * Math.PI * diff)) /
             (2 * Math.PI) +
-          botWordsPerSec * seconds;
+          botWordsPerMilliSec * diff;
 
-        const avgWpm = Math.floor(totalWords / (seconds / 60));
+        const avgWpm = Math.floor(totalWords / (diff / 60000));
         if (totalWords > expectedTotalWords) totalWords = expectedTotalWords;
         const progress = Math.floor((totalWords / expectedTotalWords) * 100);
         if (progress > 0) {
@@ -302,7 +301,7 @@ class Race {
           } else {
             const progressUpdate = {
               userId: bot.userId,
-              adjustedWpm: avgWpm,
+              wpm: avgWpm,
               progress,
               lastInput: this.data.excerpt.body.slice(
                 0,
@@ -480,14 +479,14 @@ class Race {
   };
 
   handlePlayerProgressUpdate = (progressUpdate) => {
-    const { userId, adjustedWpm, progress, lastInput, position, accuracy } =
+    const { userId, wpm, progress, lastInput, position, accuracy } =
       progressUpdate;
 
     // Update player's car progress on screen
     this.updatePlayerProgress({ playerId: userId, progress, position });
 
     // Update the player's stats
-    this.updateWpm({ playerId: userId, wpm: adjustedWpm });
+    this.updateWpm({ playerId: userId, wpm: wpm });
 
     // In the case of a reload/reconnection, update player's text progress
     if (userId === this.#user.data._id && lastInput !== this.#typedText) {
@@ -502,7 +501,7 @@ class Race {
       this.showSummary({
         accuracy,
         position,
-        wpm: adjustedWpm,
+        wpm: wpm,
         finishedTimeStamp: new Date(),
       });
     }

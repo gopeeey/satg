@@ -4,7 +4,7 @@ import { PlayerRaceProgressInterface } from "../interfaces";
 export class PlayerProgressDto {
   userId;
   raceId;
-  adjustedWpm;
+  wpm;
   progress;
   correctEntries;
   totalEntries;
@@ -13,7 +13,7 @@ export class PlayerProgressDto {
   position;
 
   constructor({
-    adjustedWpm = 0,
+    wpm = 0,
     progress = 0,
     correctEntries = 0,
     totalEntries = 0,
@@ -23,7 +23,7 @@ export class PlayerProgressDto {
   }: PickWithOptional<PlayerRaceProgressInterface, "userId" | "raceId">) {
     this.userId = props.userId;
     this.raceId = props.raceId;
-    this.adjustedWpm = adjustedWpm;
+    this.wpm = wpm;
     this.progress = progress;
     this.correctEntries = correctEntries;
     this.totalEntries = totalEntries;

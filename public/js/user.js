@@ -34,7 +34,7 @@ class User {
     <li><span class="name" title="Number of games you've played">Games</span>: <span class="value">${user.gamesPlayed}</span></li>
     <li>
         <span class="name">
-            <img src="public/images/profile.svg" alt="profile" />
+            <img src="public/images/profile.svg" alt="profile" class="user-icon" />
         </span>
         <span class="value">${user.username}</span>
     </li>

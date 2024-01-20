@@ -1,8 +1,20 @@
+
+.description {
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    margin-top: 3rem;
+    box-sizing: border-box;
+    font-style: italic;
+    opacity: 0.8;
+    color: var(--primaryColor);
+}
+
 #home {
     box-sizing: border-box;
     height: 80vh;
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto;
     column-gap: 15rem;
     justify-content: center;
     align-items: center;
@@ -33,4 +45,25 @@
     transition: all 0.5s;
     margin-bottom: 2rem;
     width: 14rem;
+}
+
+@media screen and (max-width: 599px) {
+    .description {
+        margin-top: 2rem;
+        opacity: 0.8;
+    }
+    
+    #home {
+        grid-template-columns: auto;
+        height: unset;
+        column-gap: 0rem;
+        row-gap: 5rem;
+        padding-top: 5rem;
+        font-size: 124%;
+    }
+
+    #home .option img {
+        margin-bottom: 1rem;
+        width: 11rem;
+    }
 }

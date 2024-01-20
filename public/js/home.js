@@ -1,5 +1,5 @@
-import loader from "./loader.js";
 import { raceEvents } from "./events.js";
+import loader from "./loader.js";
 
 export const getRenderer = (socket) => () => {
   const root = document.getElementById("main");
@@ -19,16 +19,17 @@ export const getRenderer = (socket) => () => {
       id: "practise",
       action: () => socket.emit(raceEvents.joinRace, true),
     },
-    {
-      title: "Create room",
-      image: "group",
-      id: "create_room",
-      action: () => console.log("Coming soon!"),
-    },
+    // {
+    //   title: "Create room",
+    //   image: "group",
+    //   id: "create_room",
+    //   action: () => console.log("Coming soon!"),
+    // },
   ];
 
   // Add the buttons to root element
   root.innerHTML = `
+        <div class="description"><strong>Level up</strong> your typing in <strong>epic</strong> multiplayer typing races!</div>
         <div id="home">
             ${buttons
               .map(

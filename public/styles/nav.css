@@ -36,3 +36,25 @@ nav ul li .name {
 nav ul li .value {
     margin-left: 0.4em;
 }
+
+@media screen and (max-width: 599px) {
+    nav {
+        padding: 0.3rem 0.7rem;
+        overflow: hidden;
+        flex-direction: column;
+    }
+
+    nav .logo {
+        width: 7rem;
+        margin: 0.7rem 0rem;
+    }
+
+    nav ul {
+        justify-content: center;
+        padding-inline-start: 0px;
+    }
+
+    nav ul li .user-icon {
+        width: 1rem;
+    }
+}

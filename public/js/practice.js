@@ -338,10 +338,9 @@ class Practice {
     // Calculate accuracy
     this.#accuracy = (this.#correctEntries / this.#totalEntries) * 100;
 
-    // Calculate the player's wpm and adjustedWpm
+    // Calculate the player's wpm
     const minutes = (new Date().getTime() - this.#startTime.getTime()) / 60000;
-    const wpm = newText.length / this.#wordLength / minutes;
-    this.#wpm = Math.round(wpm * (this.#accuracy / 100));
+    this.#wpm = Math.round(correctText.length / this.#wordLength / minutes);
     this.updateWpm(this.#wpm);
 
     // Calculate the player's progress percentage

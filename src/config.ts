@@ -18,7 +18,7 @@ const {
 const templateGlobals = {
   appName: "SATG",
   description:
-    "Have fun racing against friends and strangers in a Super Awesome Typing Game",
+    "Level up your typing skills by competing against other players in the most epic type racing game!",
   baseUrl: BASE_URL,
 } as const;
 

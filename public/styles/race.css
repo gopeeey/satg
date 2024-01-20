@@ -47,6 +47,7 @@
     opacity: 0.64;
     position: absolute;
     top: 15%;
+    white-space: nowrap;
 }
 
 #race .trackRoot .track .car img {
@@ -85,7 +86,6 @@
     opacity: 0.75;
     border-left: 1px solid rgba(255, 255, 255, 1);
     min-width: 4rem;
-    /* clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 30% 100%, 30% 30%); */
 }
 
 
@@ -174,9 +174,6 @@
 
 #race .textRoot .textBox {
     line-height: 3.5rem;
-
-        /* color: #38CF38; */
-        /* color: #EB4E4F; */
 }
 
 #race .textRoot .textBox .correct {
@@ -212,3 +209,45 @@
     cursor: default;
 }
 
+@media screen and (max-width: 599px) {
+    #race {
+        grid-template-columns: 90%;
+    }
+
+    #race #countDown {
+        font-size: 1.5rem;
+    }
+
+    #race .trackRoot {
+        padding: 0rem 0rem 1rem 0.75rem;
+    }
+
+    #race .trackRoot .track .car {
+        width: 4rem;
+        padding-top: 0.3rem;
+    }
+
+    #race .trackRoot .track .car img {
+        margin-bottom: -1.34rem;
+    }
+
+    #race .trackRoot .track .wpm {
+        padding: 0rem 0.5rem;
+        display: flex;
+        align-items: center;
+        min-width: 3.3rem;
+    }
+
+    #raceAgain {
+        margin-left: 0.5rem;
+    }
+
+    #race .trackRoot .track .car .username {
+        font-size: 0.58rem;
+        opacity: 0.84;
+    }
+
+    #race .textRoot .textBox {
+        line-height: 2rem;
+    }
+}

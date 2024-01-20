@@ -8,6 +8,16 @@
     --primaryColor: #E77200;
     --secondaryColor: #0F0326;
     --primaryDark: #934501;
+    --xsMin: 0px;
+    --xsMax: 599px;
+    --smMin: 600px;
+    --smMax: 899px;
+    --mdMin: 900px;
+    --mdMax: 1199px;
+    --lgMin: 1200px;
+    --lgMax: 1535px;
+    --xlMin: 1536px;
+    --xlMax: 1919px;
 }
 
 body {
@@ -17,6 +27,12 @@ body {
     font-family: robotoregular, Arial, Helvetica, sans-serif;
     font-size: 16px;
 }
+
+#main {
+    position: relative;
+}
+
+
 
 ::selection {
     background: var(--primaryColor);
@@ -54,3 +70,13 @@ body {
     transform: scale(0.9);
 }
 
+@media screen and (max-width: 599px) {
+    body {
+        font-size: 12px;
+    }
+
+    .button {
+        padding: 0.6rem 1rem;
+        font-size: 0.7rem;
+    }
+}

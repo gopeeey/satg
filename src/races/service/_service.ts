@@ -156,8 +156,8 @@ export class RaceService implements RaceServiceInterface {
     // Create race
     const newRace = await this._repo.createRace(
       new CreateRaceDto({
-        minWpm: Math.max(0, user.avgwpm - 15),
-        maxWpm: user.avgwpm + 20,
+        minWpm: Math.max(0, (user.avgwpm || 40) - 20),
+        maxWpm: (user.avgwpm || 20) + 20,
         userId: user._id,
         username: user.username,
         avatar: generateAvatar([]),
@@ -311,12 +311,11 @@ export class RaceService implements RaceServiceInterface {
       (correctTypedText.length / race.excerpt.body.length) * 100
     );
 
-    // Calculate the player's wpm and adjustedWpm
+    // Calculate the player's wpm
     const raceStartMoment = moment(race.startTime);
     const minutes = moment().diff(raceStartMoment, "milliseconds") / 60000;
-    const wpm = inputText.length / this.wordLength / minutes;
-    playerProgress.adjustedWpm = Math.round(
-      wpm * (playerProgress.accuracy / 100)
+    playerProgress.wpm = Math.round(
+      correctTypedText.length / this.wordLength / minutes
     );
 
     // If player has completed the race
@@ -332,7 +331,7 @@ export class RaceService implements RaceServiceInterface {
       await this.leaveRace(race._id, userId);
 
       // Update their stats
-      await this.updateUserStats(userId, playerProgress.adjustedWpm);
+      await this.updateUserStats(userId, playerProgress.wpm);
     }
 
     // Update player's race progress object on redis
@@ -419,7 +418,7 @@ export class RaceService implements RaceServiceInterface {
 
       const progress: PlayerRaceProgressInterface = {
         accuracy: 100,
-        adjustedWpm: botWpm,
+        wpm: botWpm,
         correctEntries: race.excerpt.body.length,
         lastInput: race.excerpt.body,
         progress: 100,
