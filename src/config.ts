@@ -10,6 +10,7 @@ const {
   REDIS_URL,
   REDIS_PORT,
   REDIS_PASSWORD,
+  NODE_ENV,
 } = process.env as {
   [key: string]: string;
 };
@@ -25,6 +26,7 @@ const templateGlobals = {
 // Server
 const server = {
   port: Number(PORT),
+  env: NODE_ENV,
 };
 
 // Database

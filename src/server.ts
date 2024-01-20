@@ -1,5 +1,6 @@
 import { Logger } from "@lib/logger";
 import http from "http";
+import https from "https";
 import config from "src/config";
 import * as controllers from "src/controllers";
 import { StringDecoder } from "string_decoder";
@@ -80,15 +81,19 @@ const reqListener: http.RequestListener = (req, res) => {
   });
 };
 
-const httpServer = http.createServer(reqListener);
+const httpServer =
+  config.server.env === "development"
+    ? http.createServer(reqListener)
+    : https.createServer(reqListener);
 
 export default {
   httpServer,
-  start: () =>
+  start: () => {
     httpServer.listen(config.server.port, () => {
       logger.console(
         `Server is listening on port ${config.server.port}`,
         "green"
       );
-    }),
+    });
+  },
 };
