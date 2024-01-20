@@ -51,6 +51,7 @@
     .description {
         margin-top: 2rem;
         opacity: 0.8;
+        padding: 0rem 1rem;
     }
     
     #home {
@@ -58,7 +59,7 @@
         height: unset;
         column-gap: 0rem;
         row-gap: 5rem;
-        padding-top: 5rem;
+        padding-top: 6rem;
         font-size: 124%;
     }
 

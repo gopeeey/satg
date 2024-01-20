@@ -29,7 +29,9 @@ export const getRenderer = (socket) => () => {
 
   // Add the buttons to root element
   root.innerHTML = `
-        <div class="description"><strong>Level up</strong> your typing in <strong>epic</strong> multiplayer typing races!</div>
+        <div class="description">
+          <strong>S</strong>uper <strong>A</strong>wesome <strong>T</strong>yping <strong>G</strong>ame! 
+          <strong>Level up</strong> your typing in <strong>epic</strong> multiplayer typing races!</div>
         <div id="home">
             ${buttons
               .map(

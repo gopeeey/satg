@@ -420,8 +420,10 @@ class Race {
       return this.setInputText(this.#typedText);
     }
 
-    this.#typedText = newText;
-    if (newText.length % 3 === 0 || newText.length === raceText.length) {
+    if (
+      (newText.length % 3 === 0 || newText.length === raceText.length) &&
+      newText.length > this.#typedText.length
+    ) {
       // Emit new text event to backend
       this.#socket.emit(raceEvents.playerInput, {
         inputText: newText,
@@ -429,6 +431,8 @@ class Race {
         userId: this.#user.data._id,
       });
     }
+
+    this.#typedText = newText;
 
     this.#done = raceText === newText;
   };
@@ -489,7 +493,7 @@ class Race {
     this.updateWpm({ playerId: userId, wpm: wpm });
 
     // In the case of a reload/reconnection, update player's text progress
-    if (userId === this.#user.data._id && lastInput !== this.#typedText) {
+    if (userId === this.#user.data._id && !this.#typedText.length) {
       this.setInputText(lastInput);
       this.handleTextChange(lastInput);
     }
