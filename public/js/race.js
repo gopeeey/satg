@@ -79,6 +79,10 @@ class Race {
             event: "oninput",
             handler: (e) => this.handleTextChange(e.target.value),
           },
+
+          // Added this onclick event as a workaround for iOS in which programmatically focusing the input box
+          // does not trigger the keyboard to appear. Apple only allows that for user triggered events, that is,
+          // when the user explicitly taps on the input box.
           {
             event: "onclick",
             handler: (e) => {

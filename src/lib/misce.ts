@@ -16,12 +16,12 @@ export const avatarArray = [
 ];
 
 export const excerpts: ExcerptType[] = [
-  {
-    title: "Jane Eyre",
-    author: "Charlotte Bronte",
-    body: "A lover finds his mistress asleep on a mossy bank; he wishes to catch a glimpse of her fair face without waking her. He steals softly over the grass, careful to make no sound; he pauses-fancying she has stirred : he withdraws; not for worlds would he be seen. All is still: he again advances: he bends above her; a light veil rests on her features: he lifts it, bends lower; now his eyes anticipate the vision of beauty-warm, and blooming, and lovely, in rest. How hurried was their first glance! But how they fix! How he starts! How he suddenly and vehemently clasps in both arms the form he dared not, a moment since, touch with his finger! How he calls aloud a name, and drops his burden, and gazes on it wildly! He thus grasps and cries, and gazes, because he no longer fears to waken by any sound he can utter-by any movement he can make. He thought his love slept sweetly: he finds she is stonedead.",
-    year: 1899,
-  },
+  // {
+  //   title: "Jane Eyre",
+  //   author: "Charlotte Bronte",
+  //   body: "A lover finds his mistress asleep on a mossy bank; he wishes to catch a glimpse of her fair face without waking her. He steals softly over the grass, careful to make no sound; he pauses-fancying she has stirred : he withdraws; not for worlds would he be seen. All is still: he again advances: he bends above her; a light veil rests on her features: he lifts it, bends lower; now his eyes anticipate the vision of beauty-warm, and blooming, and lovely, in rest. How hurried was their first glance! But how they fix! How he starts! How he suddenly and vehemently clasps in both arms the form he dared not, a moment since, touch with his finger! How he calls aloud a name, and drops his burden, and gazes on it wildly! He thus grasps and cries, and gazes, because he no longer fears to waken by any sound he can utter-by any movement he can make. He thought his love slept sweetly: he finds she is stonedead.",
+  //   year: 1899,
+  // },
 
   {
     title: "Into the Wild",
@@ -70,6 +70,40 @@ export const excerpts: ExcerptType[] = [
     author: "Kyung-Sook Shin",
     body: "All I wanted was for you to be free from everything. And with that freedom, you often showed me another world, so I wanted you to be even freer. I wanted you to be so free that you would live your life for other people.",
     year: 2008,
+  },
+
+  {
+    title: "Assassin's Creed: The Secret Crusade",
+    author: "Oliver Bowden",
+    body: "Only a mind free of impediment is capable of grasping the chaotic beauty of the world. This is our greatest asset.",
+  },
+
+  {
+    title: "Falling into You",
+    author: "Jasinda Wilder",
+    body: "But we have to learn to be free. We have to, Nell. Doesn't mean happy all the time, or okay all the time. It’s okay not to be okay. I told you that, but I'm relearning it myself. But not being okay doesn't mean you stop living.",
+    year: 2013,
+  },
+
+  {
+    title: "Tests of general relativity",
+    author:
+      "Wikipedia - https://en.wikipedia.org/wiki/Tests_of_general_relativity",
+    body: `Mercury deviates from the precession predicted from these Newtonian effects. This anomalous rate of precession of the perihelion of Mercury's orbit was first recognized in 1859 as a problem in celestial mechanics, by Urbain Le Verrier. His re-analysis of available timed observations of transits of Mercury over the Sun's disk from 1697 to 1848 showed that the actual rate of the precession disagreed from that predicted from Newton's theory by 38″ (arcseconds) per tropical century (later re-estimated at 43″ by Simon Newcomb in 1882).`,
+  },
+
+  {
+    title: "GW1509014: LIGO Detects Gravitational Waves",
+    author: "black-holes.org - https://www.black-holes.org/gw150914",
+    body: "On 14 September 2015 at 4:50:45 AM Eastern standard time, LIGO detected its first gravitational waves.  The waves descended on Earth from the southern hemisphere, passed through the Earth, and emerged at the Earth's surface first at the LIGO interferometer in Livingston, Louisiana, and then, 7 milliseconds later, at the LIGO interferometer in Hanford, Washington",
+  },
+
+  {
+    title:
+      "Proceedings of the National Academy of Sciences of the United States of America, Volume 15, Issue 3, pp. 168-173",
+    author: "Hubble, Edwin",
+    body: "Distances of extra-galactic nebulae depend ultimately upon the application of absolute-luminosity criteria to involved stars whose types can be recognized. These include, among others, Cepheid variables, novae, and blue stars involved in emission nebulosity. Numerical values depend upon the zero point of the period-luminosity relation among Cepheids, the other criteria merely check the order of the distances.",
+    year: 1929,
   },
 
   // {
