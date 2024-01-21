@@ -203,9 +203,8 @@
 }
 
 #race .textRoot .textBox .inputBox {
-    /* opacity: 0; */
+    opacity: 0;
     position: fixed;
-    margin-left: -200vw;
     cursor: default;
 }
 

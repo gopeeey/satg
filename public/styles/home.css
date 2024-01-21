@@ -52,6 +52,7 @@
         margin-top: 2rem;
         opacity: 0.8;
         padding: 0rem 1rem;
+        position: static
     }
     
     #home {
@@ -59,12 +60,12 @@
         height: unset;
         column-gap: 0rem;
         row-gap: 5rem;
-        padding-top: 6rem;
+        padding: 3rem 0rem 6rem 0rem;
         font-size: 124%;
     }
 
     #home .option img {
         margin-bottom: 1rem;
-        width: 11rem;
+        width: 10rem;
     }
 }
