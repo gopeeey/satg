@@ -220,7 +220,7 @@ export const excerpts: ExcerptType[] = [
     title: "Tests of general relativity",
     author:
       "Wikipedia - https://en.wikipedia.org/wiki/Tests_of_general_relativity",
-    body: `Mercury deviates from the precession predicted from these Newtonian effects. This anomalous rate of precession of the perihelion of Mercury's orbit was first recognized in 1859 as a problem in celestial mechanics, by Urbain Le Verrier. His re-analysis of available timed observations of transits of Mercury over the Sun's disk from 1697 to 1848 showed that the actual rate of the precession disagreed from that predicted from Newton's theory by 38″ (arcseconds) per tropical century (later re-estimated at 43″ by Simon Newcomb in 1882).`,
+    body: `Mercury deviates from the precession predicted from these Newtonian effects. This anomalous rate of precession of the perihelion of Mercury's orbit was first recognized in 1859 as a problem in celestial mechanics, by Urbain Le Verrier. His re-analysis of available timed observations of transits of Mercury over the Sun's disk from 1697 to 1848 showed that the actual rate of the precession disagreed from that predicted from Newton's theory by 38" (arcseconds) per tropical century (later re-estimated at 43" by Simon Newcomb in 1882).`,
   },
 
   {
