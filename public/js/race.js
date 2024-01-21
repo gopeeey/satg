@@ -71,13 +71,23 @@ class Race {
             event: "onblur",
             handler: (e) => {
               setTimeout(() => {
-                e.target.focus();
+                e.target.focus({ preventScroll: true });
               }, 10);
             },
           },
           {
             event: "oninput",
             handler: (e) => this.handleTextChange(e.target.value),
+          },
+          {
+            event: "onclick",
+            handler: (e) => {
+              const val = e.target.value;
+              this.setInputText("");
+              setTimeout(() => {
+                this.setInputText(val);
+              }, 100);
+            },
           },
         ],
         load() {
@@ -100,7 +110,7 @@ class Race {
                   break;
               }
             });
-            el.focus();
+            el.focus({ preventScroll: true });
           }, 100);
         },
       },

@@ -174,6 +174,7 @@
 
 #race .textRoot .textBox {
     line-height: 3.5rem;
+    position: relative;
 }
 
 #race .textRoot .textBox .correct {
@@ -203,8 +204,9 @@
 }
 
 #race .textRoot .textBox .inputBox {
-    opacity: 0;
+    /* opacity: 0; */
     position: fixed;
+    margin-left: -200vw;
     cursor: default;
 }
 
@@ -248,5 +250,14 @@
 
     #race .textRoot .textBox {
         line-height: 2rem;
+    }
+
+    #race .textRoot .textBox .inputBox {
+        width: 100%;
+        height: 100%;
+        top: 0%;
+        position: absolute;
+        opacity: 0;
+        margin-left: 0rem;
     }
 }
