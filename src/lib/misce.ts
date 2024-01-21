@@ -109,7 +109,7 @@ export const nameNouns = [
   "chameleon",
   "bull",
   "chihuahua",
-  "chinchillas",
+  "chinchilla",
   "hawk",
   "iguana",
   "ibis",
