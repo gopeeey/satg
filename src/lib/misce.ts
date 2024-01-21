@@ -212,7 +212,7 @@ export const excerpts: ExcerptType[] = [
   {
     title: "Falling into You",
     author: "Jasinda Wilder",
-    body: "But we have to learn to be free. We have to, Nell. Doesn't mean happy all the time, or okay all the time. It’s okay not to be okay. I told you that, but I'm relearning it myself. But not being okay doesn't mean you stop living.",
+    body: "But we have to learn to be free. We have to, Nell. Doesn't mean happy all the time, or okay all the time. It's okay not to be okay. I told you that, but I'm relearning it myself. But not being okay doesn't mean you stop living.",
     year: 2013,
   },
 
