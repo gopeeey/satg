@@ -1,6 +1,7 @@
 import { ExcerptType } from "@races/service/index";
 
 export const nameAdjectives = [
+  "cute",
   "affectionate",
   "agreeable",
   "amiable",
