@@ -226,7 +226,7 @@ export const excerpts: ExcerptType[] = [
   {
     title: "GW1509014: LIGO Detects Gravitational Waves",
     author: "black-holes.org - https://www.black-holes.org/gw150914",
-    body: "On 14 September 2015 at 4:50:45 AM Eastern standard time, LIGO detected its first gravitational waves.  The waves descended on Earth from the southern hemisphere, passed through the Earth, and emerged at the Earth's surface first at the LIGO interferometer in Livingston, Louisiana, and then, 7 milliseconds later, at the LIGO interferometer in Hanford, Washington",
+    body: "On 14 September 2015 at 4:50:45 AM Eastern standard time, LIGO detected its first gravitational waves. The waves descended on Earth from the southern hemisphere, passed through the Earth, and emerged at the Earth's surface first at the LIGO interferometer in Livingston, Louisiana, and then, 7 milliseconds later, at the LIGO interferometer in Hanford, Washington",
   },
 
   {

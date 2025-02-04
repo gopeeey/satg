@@ -1,39 +1,42 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <!-- General Settings -->
-        <meta charset="utf-8">
-        <meta http-equiv="content-language" content="en-us">
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <base href="{global.baseUrl}" />
-    
-        <!-- Meta Tags -->
-        <title>{global.appName}</title>
-        <meta name="description" content="{global.description}">
-    
-        <!-- Static Assets -->
-        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-        <script src="/socket.io/socket.io.js"></script>
-        <script type="module" charset="utf-8" src="public/js/app.js"></script>
-        <link rel="stylesheet" type="text/css" href="public/styles/app.css" />
-        <link type="image/x-icon" rel="icon" href="public/images/favicon.ico" />
-    </head>
+  <head>
+    <!-- General Settings -->
+    <meta charset="utf-8" />
+    <meta http-equiv="content-language" content="en-us" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- <base href="{global.baseUrl}" /> -->
 
-    <body>
-        <nav>
-            <img src="public/images/logo.svg" alt="logo" class="logo" />
-            <ul id="userInfo" class="info"></ul>
-        </nav>
+    <!-- Meta Tags -->
+    <title>{global.appName}</title>
+    <meta name="description" content="{global.description}" />
 
-        <div class="loaderRoot" id="loader">
-            <div class="loader">
-                <lottie-player src="public/loader.json" background="transparent" speed="1" loop
-                    autoplay></lottie-player>
-            </div>
-        </div>
+    <!-- Static Assets -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" charset="utf-8" src="public/js/app.js"></script>
+    <link rel="stylesheet" type="text/css" href="public/styles/app.css" />
+    <link type="image/x-icon" rel="icon" href="public/images/favicon.ico" />
+  </head>
 
-        <div id="main"></div>
-        
-        
-    </body>
+  <body>
+    <nav>
+      <img src="public/images/logo.svg" alt="logo" class="logo" />
+      <ul id="userInfo" class="info"></ul>
+    </nav>
+
+    <div class="loaderRoot" id="loader">
+      <div class="loader">
+        <lottie-player
+          src="public/loader.json"
+          background="transparent"
+          speed="1"
+          loop
+          autoplay
+        ></lottie-player>
+      </div>
+    </div>
+
+    <div id="main"></div>
+  </body>
 </html>
